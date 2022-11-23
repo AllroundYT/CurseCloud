@@ -1,6 +1,6 @@
 package dev.allround.cloud.service;
 
-import de.allround.cloud.api.servicegroup.IServiceGroup;
+import dev.allround.cloud.servicegroup.IServiceGroup;
 
 import java.util.List;
 import java.util.Optional;

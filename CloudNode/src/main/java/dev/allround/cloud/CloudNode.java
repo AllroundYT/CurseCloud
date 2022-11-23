@@ -8,7 +8,7 @@ import dev.allround.cloud.log.NodeLogger;
 import dev.allround.cloud.network.*;
 import dev.allround.cloud.service.ServiceManager;
 import dev.allround.cloud.setup.SetupManager;
-import dev.allround.cloud.sevicegroup.ServiceGroupManager;
+import dev.allround.cloud.servicegroup.ServiceGroupManager;
 import dev.allround.cloud.util.*;
 import dev.allround.cloud.util.process.ProcessPool;
 
@@ -97,7 +97,11 @@ public class CloudNode implements CloudModule {
 
     @Override
     public void stop() {
-        getCloudLogger().info("Cloudnode is stopping...");
+        {
+            getCloudLogger().info("");
+            getCloudLogger().info("Cloudnode is stopping...");
+            getCloudLogger().info("");
+        }
         Instant start = Instant.now();
 
         getComponent(NodeProperties.class).save();
@@ -111,7 +115,11 @@ public class CloudNode implements CloudModule {
 
         FileUtils.delete(Path.of("temp").toFile());
 
-        getCloudLogger().info("Cloudnode stopped successfully. (" + Duration.between(start, Instant.now()).toMillis() + "ms)");
+        {
+            getCloudLogger().info("");
+            getCloudLogger().info("Cloudnode stopped successfully. (" + Duration.between(start, Instant.now()).toMillis() + "ms)");
+            getCloudLogger().info("");
+        }
         System.out.println(getCloudLogger().getCloudLogo());
     }
 
@@ -139,12 +147,12 @@ public class CloudNode implements CloudModule {
             FileUtils.setupDirectories(
                     Path.of("logs"),
                     Path.of("templates"),
-                    Path.of("templates","proxies"),
-                    Path.of("templates","services"),
+                    Path.of("templates","proxy"),
+                    Path.of("templates","server"),
                     Path.of("security"),
                     Path.of("temp"),
-                    Path.of("temp","proxies"),
-                    Path.of("temp","services"),
+                    Path.of("temp","proxy"),
+                    Path.of("temp","server"),
                     Path.of("cache"),
                     Path.of("data")
             );

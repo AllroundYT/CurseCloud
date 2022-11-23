@@ -1,8 +1,7 @@
-package dev.allround.cloud.sevicegroup;
+package dev.allround.cloud.servicegroup;
 
 import dev.allround.cloud.service.ServiceType;
 import dev.allround.cloud.service.ServiceVersion;
-import dev.allround.cloud.servicegroup.IServiceGroup;
 
 public class ServiceGroup implements IServiceGroup {
     private final String node;

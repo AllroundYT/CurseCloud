@@ -5,7 +5,7 @@ import dev.allround.cloud.command.ICommand;
 import dev.allround.cloud.command.ICommandSender;
 import dev.allround.cloud.service.ServiceVersion;
 import dev.allround.cloud.servicegroup.IServiceGroupManager;
-import dev.allround.cloud.sevicegroup.ServiceGroup;
+import dev.allround.cloud.servicegroup.ServiceGroup;
 
 public class AddGroupCommand implements ICommand {
     @Override

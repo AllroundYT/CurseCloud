@@ -15,7 +15,7 @@ public class ClientPacketListener implements PacketListener {
 
     @PacketHandler(type = PacketType.NODE_DISCONNECT)
     public void onNodeDisconnect(Packet packet) {
-        Cloud.getModule().getCloudLogger().info("New Node disconnected: " + packet.getData()[0]);
+        Cloud.getModule().getCloudLogger().info("Node disconnected: " + packet.getData()[0]);
         ModuleWrapper.getInstance().unregisterModule(new Gson().fromJson(packet.getData()[0], ModuleInfo.class));
     }
 

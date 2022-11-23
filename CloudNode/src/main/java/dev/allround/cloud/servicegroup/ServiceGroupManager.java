@@ -1,10 +1,8 @@
-package dev.allround.cloud.sevicegroup;
+package dev.allround.cloud.servicegroup;
 
 import dev.allround.cloud.Cloud;
 import dev.allround.cloud.ModuleInfo;
 import dev.allround.cloud.ModuleType;
-import dev.allround.cloud.servicegroup.IServiceGroup;
-import dev.allround.cloud.servicegroup.IServiceGroupManager;
 
 import java.util.List;
 

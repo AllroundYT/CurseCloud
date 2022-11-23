@@ -10,6 +10,7 @@ public class Cloud {
 
     public static void setModule(CloudModule module) {
         Cloud.module = module;
+        Cloud.wrapper.setThisModulesInfo(module.getModuleInfo());
     }
 
     public static void setWrapper(ModuleWrapper wrapper) {

@@ -77,6 +77,11 @@ public class CloudPlayer implements ICloudPlayer {
         return service;
     }
 
+    @Override
+    public String getProxy() {
+        return proxy;
+    }
+
     public void setService(String service) {
         this.service = service;
     }

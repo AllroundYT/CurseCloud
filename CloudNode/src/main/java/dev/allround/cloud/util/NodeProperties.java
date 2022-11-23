@@ -52,8 +52,8 @@ public class NodeProperties extends Properties {
         return getProperty("node.version");
     }
 
-    public boolean isMainNode(){
-        return Boolean.parseBoolean(getProperty("node.main"));
+    public boolean isMainNode(){ //TODO: muss vor release auf Boolean.parseBoolean(getProperty("node.main")); geändert werden.
+        return Boolean.getBoolean("cloud.node.main");
     }
 
     public int getNetworkServerPort(){

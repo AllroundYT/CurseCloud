@@ -8,6 +8,10 @@ public class ModuleWrapper {
     private final ArrayList<ModuleInfo> moduleInfos;
     private ModuleInfo thisModulesInfo;
 
+    public void setThisModulesInfo(ModuleInfo thisModulesInfo) {
+        this.thisModulesInfo = thisModulesInfo;
+    }
+
     public ModuleWrapper() {
         this.moduleInfos = new ArrayList<>();
     }
