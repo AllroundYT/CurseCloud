@@ -8,5 +8,9 @@ public interface IExtensionManager {
 
     void loadExtension(ExtensionInfo extensionInfo);
 
+    void startExtension(ExtensionInfo extensionInfo);
+
+    void stopExtension(ExtensionInfo extensionInfo);
+
     void loadExtensionInfos();
 }
