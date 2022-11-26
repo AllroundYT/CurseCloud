@@ -24,7 +24,21 @@ public interface IService extends Startable, Stopable, Initializeable { //TODO: 
 
     ServiceVersion getServiceVersion();
 
+    boolean copyTemplate();
+
     int getMaxRam();
+
+    default boolean isOnline(){
+        return !List.of("BLOCKED","STOPPING","OFFLINE").contains(getStatus().toUpperCase());
+    }
+
+    default boolean isStarting(){
+        return List.of("READY","CONNECTED","CREATED").contains(getStatus().toUpperCase());
+    }
+
+    default boolean isStopping(){
+        return List.of("BLOCKED","STOPPING").contains(getStatus().toUpperCase());
+    }
 
     /**
      * Bedeutungen:

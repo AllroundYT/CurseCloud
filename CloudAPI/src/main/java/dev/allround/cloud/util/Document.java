@@ -6,11 +6,13 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 @SuppressWarnings("ALL")
 public final class Document {
@@ -83,7 +85,7 @@ public final class Document {
 
     public @NotNull Document read(final @NotNull Path path) {
         if(!Files.exists(path)) return this;
-        try (final var fileReader = Files.newBufferedReader(path)) {
+        try (final BufferedReader fileReader = Files.newBufferedReader(path)) {
             this.jsonObject = JsonParser.parseReader(fileReader).getAsJsonObject();
         } catch (IOException e) {
             e.printStackTrace();
@@ -100,8 +102,9 @@ public final class Document {
         return this;
     }
 
+
     public @NotNull Document write(final @NotNull Path path) {
-        try (final var writer = Files.newBufferedWriter(path)) {
+        try (final BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8, StandardOpenOption.CREATE_NEW)) {
             writer.write(GSON.toJson(this.jsonObject));
         } catch (IOException e) {
             e.printStackTrace();

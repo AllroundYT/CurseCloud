@@ -11,7 +11,7 @@ public class HelpCommand implements ICommand {
     @Override
     public void onExecute(ICommandSender sender, String command, String[] args) {
         sender.sendMessage("");
-        sender.sendMessage("Command List:");
+        sender.sendMessage("-------------------- Command List: --------------------");
         Cloud.getModule().getComponent(ICommandManager.class).getRegisteredCommands().forEach(registeredCommand -> {
             sender.sendMessage(" Command: " + registeredCommand.name() + " - Description: " + registeredCommand.description() + " - Permission: " + registeredCommand.permission() + " - Aliases: " + Arrays.toString(registeredCommand.alias()));
         });

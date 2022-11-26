@@ -6,9 +6,12 @@ import dev.allround.cloud.command.InputManager;
 import dev.allround.cloud.event.EventManager;
 import dev.allround.cloud.log.NodeLogger;
 import dev.allround.cloud.network.*;
-import dev.allround.cloud.service.ServiceManager;
-import dev.allround.cloud.setup.SetupManager;
+import dev.allround.cloud.service.ServiceType;
+import dev.allround.cloud.service.ServiceVersion;
+import dev.allround.cloud.servicegroup.IServiceGroupManager;
+import dev.allround.cloud.servicegroup.ServiceGroup;
 import dev.allround.cloud.servicegroup.ServiceGroupManager;
+import dev.allround.cloud.setup.SetupManager;
 import dev.allround.cloud.util.*;
 import dev.allround.cloud.util.process.ProcessPool;
 
@@ -81,6 +84,11 @@ public class CloudNode implements CloudModule {
             getComponents().forEach(o -> {
                 if (o instanceof Startable startable) startable.start();
             });
+
+
+            ServiceGroup serviceGroup = new ServiceGroup(ServiceType.SERVER,getModuleInfo().name(),"TestGroup", ServiceVersion.SPIGOT_1_18_2);
+            getComponent(IServiceGroupManager.class).registerServiceGroup(serviceGroup);
+            getComponent(IServiceGroupManager.class).saveThisModulesGroups();
         }, getComponent(NodeProperties.class).isMainNode() ? 2 : 1);
 
         getComponents().forEach(o -> {
@@ -147,14 +155,13 @@ public class CloudNode implements CloudModule {
             FileUtils.setupDirectories(
                     Path.of("logs"),
                     Path.of("templates"),
-                    Path.of("templates","proxy"),
-                    Path.of("templates","server"),
                     Path.of("security"),
                     Path.of("temp"),
                     Path.of("temp","proxy"),
                     Path.of("temp","server"),
                     Path.of("cache"),
-                    Path.of("data")
+                    Path.of("data"),
+                    Path.of("data","groups")
             );
         } catch (IOException e) {
             getCloudLogger().error(e);
@@ -167,7 +174,6 @@ public class CloudNode implements CloudModule {
         registerComponent(new InputManager());
         registerComponent(new CommandManager());
         registerComponent(new SetupManager());
-        registerComponent(new ServiceManager());
         registerComponent(new ServiceGroupManager());
 
         Path nodePropertiesPath = Path.of("node.properties");

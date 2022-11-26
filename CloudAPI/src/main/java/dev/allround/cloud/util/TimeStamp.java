@@ -30,8 +30,6 @@ public class TimeStamp implements Serializable {
 
     @Override
     public String toString() {
-        return "TimeStamp{" +
-                "date=" + getDate() +
-                '}';
+        return "TimeStamp{" + getDate() + '}';
     }
 }

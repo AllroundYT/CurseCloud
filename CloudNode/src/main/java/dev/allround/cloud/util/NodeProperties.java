@@ -29,19 +29,28 @@ public class NodeProperties extends Properties {
             addDefault("network.server.port", "1099");
             addDefault("network.server.host", "127.0.0.1");
             addDefault("log.debug", "false");
+            addDefault("server.minPort","40000");
+            addDefault("server.maxPort","50000");
         }catch (Exception e){
             Cloud.getModule().getCloudLogger().error(e);
         }
         return this;
     }
 
-    public synchronized NodeProperties save() {
+    public synchronized void save() {
         try {
             super.store(Files.newOutputStream(path), "NodeProperties for AllroundCloud Node");
         }catch (Exception e){
             Cloud.getModule().getCloudLogger().error(e);
         }
-        return this;
+    }
+
+    public int getMinServerPort(){
+        return Integer.parseInt(getProperty("server.minPort"));
+    }
+
+    public int getMaxServerPort(){
+        return Integer.parseInt(getProperty("server.maxPort"));
     }
 
     public String getNodeName(){

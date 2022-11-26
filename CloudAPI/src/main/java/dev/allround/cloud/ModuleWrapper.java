@@ -26,6 +26,10 @@ public class ModuleWrapper {
         Cloud.setWrapper(getInstance());
     }
 
+    public boolean isThisModule(String name){
+        return getThisModule().name().equals(name);
+    }
+
     public ArrayList<ModuleInfo> getModuleInfos() {
         return moduleInfos;
     }

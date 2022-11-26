@@ -81,6 +81,12 @@ public abstract class INetworkClient implements Stopable {
         this.sentPacketIds.add(packet.getUuid());
     }
 
+    @SafeVarargs
+    public final void sendPacket(PacketType type, String[] data, Consumer<Packet>... onResponse) {
+        Packet packet = new Packet(type, data).setSenderHost(getNetSocket().get().localAddress().host()).setSenderPort(getNetSocket().get().localAddress().port());
+        sendPacket(packet, onResponse);
+    }
+
     public void onDataReceive(String data) {
         Packet packet = this.packetSerializer.deserialize(data);
         if (this.sentPacketIds.contains(packet.getUuid())) return;

@@ -1,123 +1,84 @@
 package dev.allround.cloud.servicegroup;
 
+import dev.allround.cloud.Cloud;
+import dev.allround.cloud.network.INetworkClient;
+import dev.allround.cloud.network.PacketType;
+import dev.allround.cloud.service.IService;
 import dev.allround.cloud.service.ServiceType;
 import dev.allround.cloud.service.ServiceVersion;
+import dev.allround.cloud.util.NodeProperties;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
-public class ServiceGroup implements IServiceGroup {
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Getter
+@Setter
+@AllArgsConstructor
+public class ServiceGroup implements IServiceGroup{
+
+    private final ServiceType type;
     private final String node;
-    private int maxRam;
-    private int maxPlayers;
-    private final String groupName;
     private int minOnlineAmount;
     private int maxOnlineAmount;
+    private int maxPlayers;
+    private final String groupName;
+    private int maxRam;
     private double percentageToStartNewService;
     private final ServiceVersion serviceVersion;
+    private final String javaParams;
 
-    @Override
-    public ServiceVersion getServiceVersion() {
-        return serviceVersion;
+    public String getJavaParams() {
+        return javaParams;
     }
 
-    public int getMaxPlayers() {
-        return maxPlayers;
-    }
-
-    public ServiceGroup(String node, String groupName, ServiceVersion serviceVersion) {
+    public ServiceGroup(ServiceType type, String node, String groupName, ServiceVersion serviceVersion) {
+        this.type = type;
         this.node = node;
         this.groupName = groupName;
         this.serviceVersion = serviceVersion;
-    }
-
-    public ServiceGroup(String node, int maxRam, int maxPlayers, String groupName, int minOnlineAmount, int maxOnlineAmount, double percentageToStartNewService, ServiceVersion serviceVersion) {
-        this.node = node;
-        this.maxRam = maxRam;
-        this.maxPlayers = maxPlayers;
-        this.groupName = groupName;
-        this.minOnlineAmount = minOnlineAmount;
-        this.maxOnlineAmount = maxOnlineAmount;
-        this.percentageToStartNewService = percentageToStartNewService;
-        this.serviceVersion = serviceVersion;
-    }
-
-    @Override
-    public int getMaxRam() {
-        return maxRam;
+        this.minOnlineAmount = 1;
+        this.maxOnlineAmount = 1;
+        this.maxRam = 1024;
+        this.maxPlayers = 20;
+        this.percentageToStartNewService = 0.75d;
+        this.javaParams = "-Dcloud.network.host=%HOST% -Dcloud.network.port=%PORT%"
+                .replace("%HOST%",Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerHost())
+                .replace("%PORT%",String.valueOf(Cloud.getModule().getComponent(NodeProperties.class).getMaxServerPort()))
+        ;
     }
 
     @Override
-    public ServiceType getType() {
-        return null;
+    public void update() {
+        if (!Cloud.getWrapper().isThisModule(getNode())){
+            Cloud.getModule().getComponent(INetworkClient.class).sendPacket(PacketType.API_UPDATE_SERVICE_GROUP,new String[]{getGroupName()});
+            return;
+        }
+
+        while (getOnlineServiceAmount() > getMaxOnlineAmount()) {
+            getServices(IService::isOnline).stream().sorted(Comparator.comparingInt(value -> value.getPlayers().size())).toList().get(0).setStatus("BLOCKED");
+        }
+
+        while ((needNewService() || getOnlineServiceAmount() < getMinOnlineAmount()) && getOnlineServiceAmount() < getMaxOnlineAmount() ){
+            //TODO: starte neuen server dieser gruppe
+        }
     }
-
-    @Override
-    public String getNode() {
-        return node;
-    }
-
-    @Override
-    public void setMaxRam(int maxRam) {
-        this.maxRam = maxRam;
-    }
-
-    @Override
-    public void setMaxOnlineAmount(int maxOnlineAmount) {
-        this.maxOnlineAmount = maxOnlineAmount;
-    }
-
-    @Override
-    public void setMaxPlayers(int maxPlayers) {
-        this.maxPlayers = maxPlayers;
-    }
-
-    @Override
-    public void setMinOnlineAmount(int minOnlineAmount) {
-        this.minOnlineAmount = minOnlineAmount;
-    }
-
-    @Override
-    public void setPercentageToStartNewService(double percentageToStartNewService) {
-        this.percentageToStartNewService = percentageToStartNewService;
-    }
-
-    @Override
-    public double getPercentageToStartNewService() {
-        return percentageToStartNewService;
-    }
-
-
-    @Override
-    public int getMaxOnlineAmount() {
-        return maxOnlineAmount;
-    }
-
-    @Override
-    public int getMinOnlineAmount() {
-        return minOnlineAmount;
-    }
-
-    @Override
-    public String getGroupName() {
-        return groupName;
-    }
-
 
     @Override
     public boolean needNewService() {
-        return false;
+        IService iService = getServiceWithLowestPlayerAmount();
+        int players = iService.getPlayers().size();
+        int maxPlayers = iService.getMaxPlayers();
+        return ((((double) players / ((double) maxPlayers / 100d)) / 100d) >= percentageToStartNewService);
     }
 
     @Override
-    public void init() {
+    public void updateTemplate() {
 
     }
 
-    @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void stop() {
-
-    }
 }

@@ -13,12 +13,15 @@ import dev.allround.cloud.util.Initializeable;
 import dev.allround.cloud.util.Startable;
 import dev.allround.cloud.util.Stopable;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public interface IServiceGroup extends Startable, Stopable, Initializeable {
+public interface IServiceGroup {
     default int getOnlineServiceAmount(){
-        return getServices().size();
+        return getServices().stream().filter(service -> service.isOnline() || service.isStarting()).toList().size();
     }
 
     default List<IService> getServices(){
@@ -29,9 +32,25 @@ public interface IServiceGroup extends Startable, Stopable, Initializeable {
                 .collect(Collectors.toList());
     }
 
+    String getJavaParams();
+
+    default List<IService> getServices(Predicate<IService> predicate){
+        return Cloud.getModule().getComponent(IServiceManager.class)
+                .getServices()
+                .stream()
+                .filter(iService -> iService.getServiceGroup().equals(this.getGroupName()))
+                .filter(predicate)
+                .collect(Collectors.toList());
+    }
+
+    default IService getServiceWithLowestPlayerAmount() {
+        return getServices().stream().sorted(Comparator.comparingInt(service0 -> service0.getPlayers().size())).toList().get(0);
+    }
     ServiceType getType();
 
     String getNode();
+
+    void update();
 
     default List<ICloudPlayer> getPlayers(){
         return Cloud.getModule().getComponent(IPlayerManager.class)
@@ -81,4 +100,6 @@ public interface IServiceGroup extends Startable, Stopable, Initializeable {
     }
 
     boolean needNewService();
+
+    void updateTemplate();
 }

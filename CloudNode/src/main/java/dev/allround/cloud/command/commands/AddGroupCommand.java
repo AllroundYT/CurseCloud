@@ -5,7 +5,6 @@ import dev.allround.cloud.command.ICommand;
 import dev.allround.cloud.command.ICommandSender;
 import dev.allround.cloud.service.ServiceVersion;
 import dev.allround.cloud.servicegroup.IServiceGroupManager;
-import dev.allround.cloud.servicegroup.ServiceGroup;
 
 public class AddGroupCommand implements ICommand {
     @Override
@@ -39,11 +38,7 @@ public class AddGroupCommand implements ICommand {
                 serviceVersion = ServiceVersion.valueOf(serviceVersionString);
             }catch (IllegalArgumentException ignored){}
 
-            String node = Cloud.getModule().getComponent(IServiceGroupManager.class).getNodeWithMostLessGroups();
-
-            ServiceGroup serviceGroup = new ServiceGroup(node,maxRam,maxPlayers,name,minOnlineAmount,maxOnlineAmount,0.9, serviceVersion);
-
-            Cloud.getModule().getComponent(IServiceGroupManager.class).registerServiceGroup(serviceGroup);
+            String node = Cloud.getModule().getComponent(IServiceGroupManager.class).getNodeWithLowestGroupCount().name();
         }/*else if (args.length == 6 && args[0].equalsIgnoreCase("proxy")){
             String name = args[1];
             String maxRamString = args[2];

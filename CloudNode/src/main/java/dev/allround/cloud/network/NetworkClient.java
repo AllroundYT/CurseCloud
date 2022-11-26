@@ -22,7 +22,7 @@ public class NetworkClient extends INetworkClient {
             sendPacket(new Packet(PacketType.NODE_CONNECT, new Gson().toJson(Cloud.getModule().getModuleInfo())));
         });
         if (Cloud.getModule().getComponent(NodeProperties.class).isMainNode()) return; //die daten requests muss der main node nicht machen da er als erster startet und somit alle daten hat
-        sendApiRequest(PacketType.REQUEST_NODE_INFO, new String[0], response -> {
+        sendPacket(PacketType.REQUEST_NODE_INFO, new String[0], response -> {
             for (String s : response.getData()) {
                 ModuleInfo moduleInfo = new Gson().fromJson(s, ModuleInfo.class);
                 ModuleWrapper.getInstance().registerModule(moduleInfo);
@@ -32,13 +32,12 @@ public class NetworkClient extends INetworkClient {
 
     @Override
     public void stop() {
-        sendPacket(new Packet(PacketType.NODE_DISCONNECT, new Gson().toJson(ModuleWrapper.getInstance().getThisModule())));
+        if (Cloud.getModule().getComponent(NodeProperties.class).isMainNode()){
+            sendPacket(new Packet(PacketType.CLUSTER_STOP, new Gson().toJson(ModuleWrapper.getInstance().getThisModule())));
+        } else {
+            sendPacket(new Packet(PacketType.NODE_DISCONNECT, new Gson().toJson(ModuleWrapper.getInstance().getThisModule())));
+        }
         super.stop();
     }
 
-    @SafeVarargs
-    public final void sendApiRequest(PacketType type, String[] data, Consumer<Packet>... onResponse) {
-        Packet packet = new Packet(type, data).setSenderHost(getNetSocket().get().localAddress().host()).setSenderPort(getNetSocket().get().localAddress().port());
-        sendPacket(packet, onResponse);
-    }
 }

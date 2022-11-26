@@ -14,15 +14,7 @@ public interface IServiceManager extends Startable, Stopable {
     IService createService(IServiceGroup iServiceGroup);
     Optional<IService> getService(String serviceId);
     List<IService> getStartList();
-
-    default void queueStart(IService iService){
-        if (getServices().stream().anyMatch(iService1 -> iService1.getServiceID().equals(iService.getServiceID()))) return;
-        getStartList().add(iService);
-        Cloud.getModule().getCloudLogger().info("Service added to start queue: "+iService.getServiceID());
-    }
-    default void queueStop(IService iService){
-        getStopList().add(iService);
-        Cloud.getModule().getCloudLogger().info("Service added to stop queue: "+iService.getServiceID()+" Player Count: "+iService.getPlayers().size());
-    }
+    void queueStart(IService iService);
+    void queueStop(IService iService);
     List<IService> getStopList();
 }
