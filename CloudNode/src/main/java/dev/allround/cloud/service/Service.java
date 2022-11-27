@@ -5,9 +5,9 @@ import dev.allround.cloud.network.INetworkClient;
 import dev.allround.cloud.network.PacketType;
 import dev.allround.cloud.servicegroup.IServiceGroup;
 import dev.allround.cloud.servicegroup.IServiceGroupManager;
-import dev.allround.cloud.util.FileUtils;
 import dev.allround.cloud.util.NodeProperties;
 import dev.allround.cloud.util.PortChecker;
+import dev.allround.cloud.util.process.ProcessPool;
 import io.vertx.core.net.SocketAddress;
 import lombok.SneakyThrows;
 
@@ -26,10 +26,11 @@ public class Service implements IService {
     private final String serviceGroup;
     private final String serviceID;
     private final String javaParams;
+    private final int maxRam;
     private String[] motd;
     private String status;
-    private final int maxRam;
     private int maxPlayers;
+    private long pid;
 
     public Service(String node, SocketAddress socketAddress, ServiceType type, ServiceVersion serviceVersion, String serviceGroup, String serviceID, String javaParams, int maxRam) {
         this.node = node;
@@ -42,13 +43,13 @@ public class Service implements IService {
         this.maxRam = maxRam;
         this.maxPlayers = 20;
         this.status = "CREATED";
-        this.motd = new String[]{"§6Service by AllroundCloud","§7by Allround | Julian"};
+        this.motd = new String[]{"§6Service by AllroundCloud", "§7by Allround | Julian"};
     }
 
     public Service(String node, String[] motd, String host, int port, ServiceType type, ServiceVersion serviceVersion, int maxRam, String serviceGroup, String serviceID, int maxPlayers, String javaParams) {
         this.node = node;
         this.motd = motd;
-        this.socketAddress = SocketAddress.inetSocketAddress(port,host);
+        this.socketAddress = SocketAddress.inetSocketAddress(port, host);
         this.type = type;
         this.serviceVersion = serviceVersion;
         this.status = "CREATED";
@@ -60,13 +61,13 @@ public class Service implements IService {
     }
 
     @SneakyThrows
-    public Service(IServiceGroup iServiceGroup){
+    public Service(IServiceGroup iServiceGroup) {
         this.node = iServiceGroup.getNode();
         this.socketAddress = SocketAddress.inetSocketAddress(PortChecker.getFreePort(
                 Cloud.getModule().getComponent(NodeProperties.class).getMinServerPort(),
                 Cloud.getModule().getComponent(NodeProperties.class).getMaxServerPort(),
                 Cloud.getModule().getComponent(NodeProperties.class).getMinServerPort()
-        ),InetAddress.getLocalHost().getHostAddress());
+        ), InetAddress.getLocalHost().getHostAddress());
         this.type = iServiceGroup.getType();
         this.serviceVersion = iServiceGroup.getServiceVersion();
         this.serviceGroup = iServiceGroup.getGroupName();
@@ -75,21 +76,23 @@ public class Service implements IService {
         this.maxRam = iServiceGroup.getMaxRam();
         this.maxPlayers = iServiceGroup.getMaxPlayers();
         this.status = "CREATED";
-        this.motd = new String[]{"§6Service by AllroundCloud","§7by Allround | Julian"};
+        this.motd = new String[]{"§6Service by AllroundCloud", "§7by Allround | Julian"};
     }
+
     @Override
     public boolean copyTemplate() {
-        if (!Cloud.getWrapper().isThisModule(getNode())) return false;
-        if (Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroup(getServiceGroup()).isEmpty()) return false;
+        //if (!Cloud.getWrapper().isThisModule(getNode())) return false;
+        if (Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroup(getServiceGroup()).isEmpty())
+            return false;
         Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroup(getServiceGroup()).get().updateTemplate();
 
-        Path templatePath = Path.of("templates",getServiceGroup());
-        Path tempPath = Path.of("temp",getServiceID());
+        Path templatePath = Path.of("templates", getServiceGroup());
+        Path tempPath = Path.of("temp", getServiceID());
 
         if (Files.notExists(templatePath)) return false;
 
         try {
-            Files.copy(templatePath,tempPath, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(templatePath, tempPath, StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
             Cloud.getModule().getCloudLogger().error(e);
             return false;
@@ -168,28 +171,51 @@ public class Service implements IService {
         this.maxPlayers = maxPlayers;
     }
 
-    @Override
-    public void init() {
-        if (!Cloud.getWrapper().isThisModule(getNode())) return;
-        copyTemplate();
-    }
 
     @Override
     public void start() {
-        if (!Cloud.getWrapper().isThisModule(getNode())) {
-            Cloud.getModule().getComponent(INetworkClient.class).sendPacket(PacketType.API_START_SERVICE,new String[]{getServiceID()});
+        /*if (!Cloud.getWrapper().isThisModule(getNode())) {
             return;
         }
-        init();
-        Cloud.getModule().getComponent(IServiceManager.class).queueStart(this);
+
+         */
+        setStatus("READY");
+        //Service wird registriert
+        Cloud.getModule().getComponent(IServiceManager.class).registerServices(this);
+
+        copyTemplate();
+        ProcessBuilder processBuilder = new ProcessBuilder()
+                .directory(Path.of("temp", getServiceID()).toFile())
+                .command("cmd.exe",
+                        "/c",
+                        "java -Xmx" +
+                                getMaxRam() +
+                                "M -Xms" +
+                                getMaxRam() +
+                                "M -Dcloud.network.host=" +
+                                Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerHost() +
+                                " -Dcloud.network.port=" +
+                                Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerPort() +
+                                " " +
+                                getJavaParams() +
+                                " -jar " +
+                                (getType() == ServiceType.PROXY ? "proxy.jar" : "server.jar"));
+
+        try {
+            this.pid = Cloud.getModule().getComponent(ProcessPool.class).startProcess(processBuilder,s -> Cloud.getModule().getCloudLogger().info("["+getServiceID()+"] "+s));
+        }catch (IOException e){
+            Cloud.getModule().getCloudLogger().error(e);
+        }
     }
 
     @Override
     public void stop() {
         if (!Cloud.getWrapper().isThisModule(getNode())) {
-            Cloud.getModule().getComponent(INetworkClient.class).sendPacket(PacketType.API_STOP_SERVICE,new String[]{getServiceID()});
+            Cloud.getModule().getComponent(INetworkClient.class).sendPacket(PacketType.API_STOP_SERVICE, new String[]{getServiceID()});
             return;
         }
-        Cloud.getModule().getComponent(IServiceManager.class).queueStop(this);
+
+        Cloud.getModule().getComponent(ProcessPool.class).stopProcess(this.pid);
+        //TODO: Service muss entregistriert werden und ein Shutdown packet an den Service gesendet werden
     }
 }

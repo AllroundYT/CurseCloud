@@ -13,7 +13,7 @@ import io.vertx.core.net.SocketAddress;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public interface IService extends Startable, Stopable, Initializeable { //TODO: Service muss neu gemacht werden damit er als server oder proxy genutzt werden kann
+public interface IService extends Startable, Stopable { //TODO: Service muss neu gemacht werden damit er als server oder proxy genutzt werden kann
     SocketAddress getSocketAddress();
 
     String[] getMotd();

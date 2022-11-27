@@ -1,9 +1,6 @@
 package dev.allround.cloud.command;
 
-import dev.allround.cloud.command.commands.AddGroupCommand;
-import dev.allround.cloud.command.commands.ListModulesCommand;
-import dev.allround.cloud.command.commands.RestartCommand;
-import dev.allround.cloud.command.commands.StopCommand;
+import dev.allround.cloud.command.commands.*;
 
 public class CommandManager extends ICommandManager {
     @Override
@@ -12,6 +9,8 @@ public class CommandManager extends ICommandManager {
         registerCommand(new StopCommand(), "StopNode", "Stops this node.", "cloud.command.stopnode", "stopn", "stop");
         registerCommand(new RestartCommand(),"RestartNode","Restarts this node","cloud.command.restartnode","restartn","restart");
         registerCommand(new AddGroupCommand(),"AddGroup","Adds a new group","cloud.command.addgroup","agroup","creategroup");
+        registerCommand(new TestGroupCommand(),"testgroup","","cloud.command.testgroup","tg");
+        registerCommand(new ListGroupsCommand(),"listgroups","","","lg");
         //registerCommand(new ListProxies(),"Listproxies","Lists all proxies","cloud.command.listproxies","lproxies");
     }
 }

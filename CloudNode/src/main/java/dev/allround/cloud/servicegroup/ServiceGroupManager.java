@@ -101,7 +101,8 @@ public class ServiceGroupManager implements IServiceGroupManager{
     private void startUpdateSchedule(){
         if (!Cloud.getModule().getComponent(NodeProperties.class).isMainNode()) return;
         Cloud.getModule().getScheduledExecutorService().scheduleAtFixedRate(() -> {
-            updateGroups(getServiceGroups().toArray(new IServiceGroup[0]));
+            getServiceGroups().forEach(IServiceGroup::update);
+            System.out.println("GROUP UPDATE");
         }, 0,20, TimeUnit.SECONDS);
     }
 

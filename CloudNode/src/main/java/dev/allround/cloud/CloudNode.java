@@ -6,12 +6,12 @@ import dev.allround.cloud.command.InputManager;
 import dev.allround.cloud.event.EventManager;
 import dev.allround.cloud.log.NodeLogger;
 import dev.allround.cloud.network.*;
+import dev.allround.cloud.service.ServiceManager;
 import dev.allround.cloud.service.ServiceType;
 import dev.allround.cloud.service.ServiceVersion;
 import dev.allround.cloud.servicegroup.IServiceGroupManager;
 import dev.allround.cloud.servicegroup.ServiceGroup;
 import dev.allround.cloud.servicegroup.ServiceGroupManager;
-import dev.allround.cloud.setup.SetupManager;
 import dev.allround.cloud.util.*;
 import dev.allround.cloud.util.process.ProcessPool;
 
@@ -173,8 +173,8 @@ public class CloudNode implements CloudModule {
         registerComponent(new EventManager());
         registerComponent(new InputManager());
         registerComponent(new CommandManager());
-        registerComponent(new SetupManager());
         registerComponent(new ServiceGroupManager());
+        registerComponent(new ServiceManager());
 
         Path nodePropertiesPath = Path.of("node.properties");
         if (!Files.exists(nodePropertiesPath)) this.firstStart = true;
