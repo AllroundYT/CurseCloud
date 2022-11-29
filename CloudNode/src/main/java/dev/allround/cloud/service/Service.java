@@ -122,10 +122,6 @@ public class Service implements IService {
     }
 
 
-    @Override
-    public long getPid() {
-        return pid;
-    }
 
     @Override
     public String getNode() {
@@ -215,10 +211,6 @@ public class Service implements IService {
     }
 
 
-    @Override
-    public void setPid(long pid) {
-        this.pid = pid;
-    }
 
     @Override
     public void stop() {
