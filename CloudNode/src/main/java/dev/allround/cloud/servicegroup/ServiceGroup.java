@@ -33,6 +33,12 @@ public class ServiceGroup implements IServiceGroup{
     private double percentageToStartNewService;
     private final ServiceVersion serviceVersion;
     private final String javaParams;
+    private final String startArgs;
+
+    @Override
+    public String getStartArgs() {
+        return startArgs;
+    }
 
     public String getJavaParams() {
         return javaParams;
@@ -52,29 +58,21 @@ public class ServiceGroup implements IServiceGroup{
                 .replace("%HOST%",Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerHost())
                 .replace("%PORT%",String.valueOf(Cloud.getModule().getComponent(NodeProperties.class).getMaxServerPort()))
         ;
+        this.startArgs = "nogui";
     }
 
     @Override
     public void update() {
-       /* if (!Cloud.getWrapper().isThisModule(getNode())){
+        if (!Cloud.getWrapper().isThisModule(getNode())){
             Cloud.getModule().getComponent(INetworkClient.class).sendPacket(PacketType.API_UPDATE_SERVICE_GROUP,new String[]{getGroupName()});
             return;
         }
 
-        */
-
-        updateTemplate();
-        System.out.println("TEST 2");
-        if (getOnlineServiceAmount() < getMaxOnlineAmount()) System.out.println("TEST 3");
-        if (getOnlineServiceAmount() < getMinOnlineAmount()) System.out.println("TEST 4");
-
         while (getOnlineServiceAmount() > getMaxOnlineAmount()) {
-            System.out.println("TEST 5");
             getServices(IService::isOnline).stream().sorted(Comparator.comparingInt(value -> value.getPlayers().size())).toList().get(0).setStatus("BLOCKED");
         }
 
         while (getOnlineServiceAmount() < getMinOnlineAmount() && getOnlineServiceAmount() < getMaxOnlineAmount() ){
-            System.out.println("TEST 6");
             Service service = new Service(this);
             service.start();
         }
@@ -89,9 +87,9 @@ public class ServiceGroup implements IServiceGroup{
     }
 
     @Override
-    public void updateTemplate() {
+    public boolean updateTemplate(boolean printWarnMsg) {
         if (!Cloud.getWrapper().isThisModule(getNode())){
-            return;
+            return false;
         }
         try {
             Path templatePath = Path.of("templates", getGroupName());
@@ -104,11 +102,16 @@ public class ServiceGroup implements IServiceGroup{
             }
 
             if (Files.notExists(templatePath)) Files.createDirectories(templatePath);
-            if (Files.notExists(serverJarPath)) throw new ServiceJarNotFoundException(this);
             if (Files.notExists(pluginsPath)) Files.createDirectories(pluginsPath);
+            if (Files.notExists(serverJarPath)) throw new ServiceJarNotFoundException(this);
 
-        } catch (IOException | ServiceJarNotFoundException e){
+            return true;
+        } catch (IOException e){
             Cloud.getModule().getCloudLogger().error(e);
+            return false;
+        } catch (ServiceJarNotFoundException e) {
+            if (printWarnMsg) Cloud.getModule().getCloudLogger().warn(e.getMessage());
+            return false;
         }
     }
 

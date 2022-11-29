@@ -36,15 +36,16 @@ public class ServiceGroupManager implements IServiceGroupManager{
                 try {
                     if (path.toString().endsWith(".json")) {
                         Document document = new Document(path);
-                        String node, type, version, name, javaParams;
+                        String node, type, version, name, javaParams, startArgs;
                         double percentageToStartNewService;
                         int minOnlineAmount, maxOnlineAmount, maxRam, maxPlayers;
 
                         name = document.get("name", String.class);
-                        node = document.get("node", String.class);
+                        node = Cloud.getModule().getModuleInfo().name(); //document.get("node", String.class);
                         type = document.get("type", String.class);
                         version = document.get("version", String.class);
                         javaParams = document.get("javaParams",String.class);
+                        startArgs = document.get("startArgs",String.class);
 
                         percentageToStartNewService = document.get("percentageToStartNewService", Double.class);
 
@@ -56,7 +57,7 @@ public class ServiceGroupManager implements IServiceGroupManager{
                         ServiceType serviceType = ServiceType.valueOf(type);
                         ServiceVersion serviceVersion = ServiceVersion.valueOf(version);
 
-                        ServiceGroup serviceGroup = new ServiceGroup(serviceType,node,minOnlineAmount,maxOnlineAmount,maxPlayers,name,maxRam,percentageToStartNewService,serviceVersion,javaParams);
+                        ServiceGroup serviceGroup = new ServiceGroup(serviceType,node,minOnlineAmount,maxOnlineAmount,maxPlayers,name,maxRam,percentageToStartNewService,serviceVersion,javaParams,startArgs);
                         this.registerServiceGroup(serviceGroup);
                     }
                 }catch (Exception ignored){}
@@ -80,6 +81,7 @@ public class ServiceGroupManager implements IServiceGroupManager{
                     .set("version",iServiceGroup.getServiceVersion().name())
                     .set("percentageToStartNewService",iServiceGroup.getPercentageToStartNewService())
                     .set("javaParams",iServiceGroup.getJavaParams())
+                    .set("startArgs",iServiceGroup.getStartArgs())
             ;
             Path groupFilePath = Path.of("data","groups",iServiceGroup.getGroupName()+".json");
             try {
@@ -102,7 +104,6 @@ public class ServiceGroupManager implements IServiceGroupManager{
         if (!Cloud.getModule().getComponent(NodeProperties.class).isMainNode()) return;
         Cloud.getModule().getScheduledExecutorService().scheduleAtFixedRate(() -> {
             getServiceGroups().forEach(IServiceGroup::update);
-            System.out.println("GROUP UPDATE");
         }, 0,20, TimeUnit.SECONDS);
     }
 

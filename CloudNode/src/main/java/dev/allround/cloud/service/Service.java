@@ -5,9 +5,9 @@ import dev.allround.cloud.network.INetworkClient;
 import dev.allround.cloud.network.PacketType;
 import dev.allround.cloud.servicegroup.IServiceGroup;
 import dev.allround.cloud.servicegroup.IServiceGroupManager;
+import dev.allround.cloud.util.FileUtils;
 import dev.allround.cloud.util.NodeProperties;
 import dev.allround.cloud.util.PortChecker;
-import dev.allround.cloud.util.process.ProcessPool;
 import io.vertx.core.net.SocketAddress;
 import lombok.SneakyThrows;
 
@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.UUID;
 
 public class Service implements IService {
@@ -27,12 +26,24 @@ public class Service implements IService {
     private final String serviceID;
     private final String javaParams;
     private final int maxRam;
+    private final String startArgs;
     private String[] motd;
     private String status;
     private int maxPlayers;
     private long pid;
+    private Process process;
 
-    public Service(String node, SocketAddress socketAddress, ServiceType type, ServiceVersion serviceVersion, String serviceGroup, String serviceID, String javaParams, int maxRam) {
+    @Override
+    public Process getProcess() {
+        return process;
+    }
+
+    @Override
+    public void setProcess(Process process) {
+        this.process = process;
+    }
+
+    public Service(String node, SocketAddress socketAddress, ServiceType type, ServiceVersion serviceVersion, String serviceGroup, String serviceID, String javaParams, int maxRam, String startArgs) {
         this.node = node;
         this.socketAddress = socketAddress;
         this.type = type;
@@ -41,14 +52,16 @@ public class Service implements IService {
         this.serviceID = serviceID;
         this.javaParams = javaParams;
         this.maxRam = maxRam;
+        this.startArgs = startArgs;
         this.maxPlayers = 20;
         this.status = "CREATED";
         this.motd = new String[]{"§6Service by AllroundCloud", "§7by Allround | Julian"};
     }
 
-    public Service(String node, String[] motd, String host, int port, ServiceType type, ServiceVersion serviceVersion, int maxRam, String serviceGroup, String serviceID, int maxPlayers, String javaParams) {
+    public Service(String node, String[] motd, String host, int port, ServiceType type, ServiceVersion serviceVersion, int maxRam, String serviceGroup, String serviceID, int maxPlayers, String javaParams, String startArgs) {
         this.node = node;
         this.motd = motd;
+        this.startArgs = startArgs;
         this.socketAddress = SocketAddress.inetSocketAddress(port, host);
         this.type = type;
         this.serviceVersion = serviceVersion;
@@ -63,11 +76,7 @@ public class Service implements IService {
     @SneakyThrows
     public Service(IServiceGroup iServiceGroup) {
         this.node = iServiceGroup.getNode();
-        this.socketAddress = SocketAddress.inetSocketAddress(PortChecker.getFreePort(
-                Cloud.getModule().getComponent(NodeProperties.class).getMinServerPort(),
-                Cloud.getModule().getComponent(NodeProperties.class).getMaxServerPort(),
-                Cloud.getModule().getComponent(NodeProperties.class).getMinServerPort()
-        ), InetAddress.getLocalHost().getHostAddress());
+        this.socketAddress = SocketAddress.inetSocketAddress(PortChecker.getFreePort(Cloud.getModule().getComponent(NodeProperties.class).getMinServerPort(), Cloud.getModule().getComponent(NodeProperties.class).getMaxServerPort(), Cloud.getModule().getComponent(NodeProperties.class).getMinServerPort()), InetAddress.getLocalHost().getHostAddress());
         this.type = iServiceGroup.getType();
         this.serviceVersion = iServiceGroup.getServiceVersion();
         this.serviceGroup = iServiceGroup.getGroupName();
@@ -77,28 +86,45 @@ public class Service implements IService {
         this.maxPlayers = iServiceGroup.getMaxPlayers();
         this.status = "CREATED";
         this.motd = new String[]{"§6Service by AllroundCloud", "§7by Allround | Julian"};
+        this.startArgs = iServiceGroup.getStartArgs();
     }
 
     @Override
-    public boolean copyTemplate() {
-        //if (!Cloud.getWrapper().isThisModule(getNode())) return false;
-        if (Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroup(getServiceGroup()).isEmpty())
+    public String getStartArgs() {
+        return startArgs;
+    }
+
+    @Override
+    public boolean copyTemplate(boolean printWarnMsg) {
+        if (!Cloud.getWrapper().isThisModule(getNode())) return false;
+        if (Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroup(getServiceGroup()).isEmpty()) {
             return false;
-        Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroup(getServiceGroup()).get().updateTemplate();
+        }
+
 
         Path templatePath = Path.of("templates", getServiceGroup());
         Path tempPath = Path.of("temp", getServiceID());
 
-        if (Files.notExists(templatePath)) return false;
+        if (Files.notExists(templatePath) || !Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroup(getServiceGroup()).get().updateTemplate(printWarnMsg)) {
+            return false;
+        }
 
         try {
-            Files.copy(templatePath, tempPath, StandardCopyOption.REPLACE_EXISTING);
+            FileUtils.copy(templatePath.toFile(), tempPath.toFile());
+            System.out.println("Template Copied");
+            Files.list(templatePath).forEach(path -> System.out.println("Template File or Dir: " + path.toAbsolutePath()));
+            Files.list(tempPath).forEach(path -> System.out.println("Temp File or Dir: " + path.toAbsolutePath()));
         } catch (IOException e) {
             Cloud.getModule().getCloudLogger().error(e);
             return false;
         }
-
         return true;
+    }
+
+
+    @Override
+    public long getPid() {
+        return pid;
     }
 
     @Override
@@ -174,38 +200,24 @@ public class Service implements IService {
 
     @Override
     public void start() {
-        /*if (!Cloud.getWrapper().isThisModule(getNode())) {
+        if (!Cloud.getWrapper().isThisModule(getNode())) {
             return;
         }
-
-         */
         setStatus("READY");
         //Service wird registriert
         Cloud.getModule().getComponent(IServiceManager.class).registerServices(this);
 
-        copyTemplate();
-        ProcessBuilder processBuilder = new ProcessBuilder()
-                .directory(Path.of("temp", getServiceID()).toFile())
-                .command("cmd.exe",
-                        "/c",
-                        "java -Xmx" +
-                                getMaxRam() +
-                                "M -Xms" +
-                                getMaxRam() +
-                                "M -Dcloud.network.host=" +
-                                Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerHost() +
-                                " -Dcloud.network.port=" +
-                                Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerPort() +
-                                " " +
-                                getJavaParams() +
-                                " -jar " +
-                                (getType() == ServiceType.PROXY ? "proxy.jar" : "server.jar"));
-
-        try {
-            this.pid = Cloud.getModule().getComponent(ProcessPool.class).startProcess(processBuilder,s -> Cloud.getModule().getCloudLogger().info("["+getServiceID()+"] "+s));
-        }catch (IOException e){
-            Cloud.getModule().getCloudLogger().error(e);
+        if (!copyTemplate(true)){
+            return;
         }
+
+        Cloud.getModule().getComponent(IServiceManager.class).queueStart(this);
+    }
+
+
+    @Override
+    public void setPid(long pid) {
+        this.pid = pid;
     }
 
     @Override
@@ -215,7 +227,8 @@ public class Service implements IService {
             return;
         }
 
-        Cloud.getModule().getComponent(ProcessPool.class).stopProcess(this.pid);
+        if (getProcess() != null) getProcess().destroyForcibly();
+
         //TODO: Service muss entregistriert werden und ein Shutdown packet an den Service gesendet werden
     }
 }

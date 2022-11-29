@@ -101,5 +101,7 @@ public interface IServiceGroup {
 
     boolean needNewService();
 
-    void updateTemplate();
+    boolean updateTemplate(boolean printWarnMsg);
+
+    String getStartArgs();
 }

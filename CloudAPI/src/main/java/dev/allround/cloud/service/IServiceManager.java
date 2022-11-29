@@ -13,4 +13,6 @@ public interface IServiceManager extends Startable, Stopable {
     Optional<IService> getService(String serviceId);
 
     void registerServices(IService... iServices);
+
+    void queueStart(IService iService);
 }

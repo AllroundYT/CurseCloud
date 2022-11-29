@@ -5,7 +5,6 @@ import dev.allround.cloud.network.Packet;
 import dev.allround.cloud.network.PacketType;
 import dev.allround.cloud.player.ICloudPlayer;
 import dev.allround.cloud.player.IPlayerManager;
-import dev.allround.cloud.util.Initializeable;
 import dev.allround.cloud.util.Startable;
 import dev.allround.cloud.util.Stopable;
 import io.vertx.core.net.SocketAddress;
@@ -18,26 +17,31 @@ public interface IService extends Startable, Stopable { //TODO: Service muss neu
 
     String[] getMotd();
 
-    ServiceType getType();
-
     void setMotd(String[] motd);
+
+    ServiceType getType();
 
     ServiceVersion getServiceVersion();
 
-    boolean copyTemplate();
+    Process getProcess();
+
+    void setProcess(Process process);
+
+    String getStartArgs();
+
 
     int getMaxRam();
 
-    default boolean isOnline(){
-        return !List.of("BLOCKED","STOPPING","OFFLINE").contains(getStatus().toUpperCase());
+    default boolean isOnline() {
+        return !List.of("BLOCKED", "STOPPING", "OFFLINE").contains(getStatus().toUpperCase());
     }
 
-    default boolean isStarting(){
-        return List.of("READY","CONNECTED","CREATED").contains(getStatus().toUpperCase());
+    default boolean isStarting() {
+        return List.of("READY", "CONNECTED", "CREATED").contains(getStatus().toUpperCase());
     }
 
-    default boolean isStopping(){
-        return List.of("BLOCKED","STOPPING").contains(getStatus().toUpperCase());
+    default boolean isStopping() {
+        return List.of("BLOCKED", "STOPPING").contains(getStatus().toUpperCase());
     }
 
     /**
@@ -51,7 +55,7 @@ public interface IService extends Startable, Stopable { //TODO: Service muss neu
      * BLOCKED → kann nicht mehr betreten werden, bereitet stop vor (wenn man den Server stoppen möchte, muss man diesen Status setzten)
      * STOPPING → server ist am Stoppen und es kann nicht gejoint werden
      * OFFLINE → ist gestoppt und wird in Kürze gelöscht
-     *
+     * <p>
      * Der Status kann auch ein beliebiger sein bei genannten Staten wird jedoch die aktion in Kraft gesetzt.
      * Manche Staten (READY, CONNECTED, STOPPING, OFFLINE) können nur von der Cloud gesetzt werden (werden automatisch gesetzt)
      */
@@ -69,7 +73,7 @@ public interface IService extends Startable, Stopable { //TODO: Service muss neu
      * BLOCKED → kann nicht mehr betreten werden, bereitet stop vor (wenn man den Server stoppen möchte, muss man diesen Status setzten)
      * STOPPING → server ist am Stoppen und es kann nicht gejoint werden
      * OFFLINE → ist gestoppt und wird in Kürze gelöscht
-     *
+     * <p>
      * Der Status kann auch ein beliebiger sein bei genannten Staten wird jedoch die aktion in Kraft gesetzt.
      * Manche Staten (READY, CONNECTED, STOPPING, OFFLINE) können nur von der Cloud gesetzt werden (werden automatisch gesetzt)
      */
@@ -78,33 +82,38 @@ public interface IService extends Startable, Stopable { //TODO: Service muss neu
     String getServiceID();
 
     int getMaxPlayers();
+
     void setMaxPlayers(int i);
 
-     default List<ICloudPlayer> getPlayers(){
-         return Cloud.getModule().getComponent(IPlayerManager.class)
-                 .getCloudPlayers()
-                 .stream()
-                 .filter(iCloudPlayer -> iCloudPlayer.getService().equals(getServiceID()))
-                 .collect(Collectors.toList());
-     }
+    default List<ICloudPlayer> getPlayers() {
+        return Cloud.getModule().getComponent(IPlayerManager.class)
+                .getCloudPlayers()
+                .stream()
+                .filter(iCloudPlayer -> iCloudPlayer.getService().equals(getServiceID()))
+                .collect(Collectors.toList());
+    }
 
     String getServiceGroup();
 
     String getJavaParams();
 
-    String getNode();
+    boolean copyTemplate(boolean printWarnMsg);
+
     //double getTps();
 
-    default Packet createServiceInfoUpdatePacket(){
+    String getNode();
+
+    default Packet createServiceInfoUpdatePacket() {
         return new Packet(
                 PacketType.SERVICE_INFO_UPDATE,
                 getServiceID(),
+                getStatus(),
                 getServiceGroup(),
                 getNode(),
                 getType().name(),
-                getStatus(),
                 getServiceVersion().name(),
                 getJavaParams(),
+                getStartArgs(),
                 String.valueOf(getSocketAddress().port()),
                 getSocketAddress().host(),
                 String.valueOf(getMaxPlayers()),
