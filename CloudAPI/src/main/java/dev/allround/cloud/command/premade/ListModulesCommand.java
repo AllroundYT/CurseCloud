@@ -1,4 +1,4 @@
-package dev.allround.cloud.command.commands;
+package dev.allround.cloud.command.premade;
 
 import dev.allround.cloud.ModuleWrapper;
 import dev.allround.cloud.command.ICommand;

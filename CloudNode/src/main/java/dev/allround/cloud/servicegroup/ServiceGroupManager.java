@@ -7,6 +7,7 @@ import dev.allround.cloud.util.Document;
 import dev.allround.cloud.util.NodeProperties;
 import lombok.Getter;
 
+import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -30,7 +31,7 @@ public class ServiceGroupManager implements IServiceGroupManager{
     }
 
     @Override
-    public void loadThisModulesGroups() {
+    public void loadGroups() {
         try (final Stream<Path> pathStream = Files.list(Path.of("data","groups"))){
             pathStream.forEach(path -> {
                 try {
@@ -55,6 +56,7 @@ public class ServiceGroupManager implements IServiceGroupManager{
                         maxPlayers = document.get("maxPlayers", Integer.class);
 
                         ServiceType serviceType = ServiceType.valueOf(type);
+
                         ServiceVersion serviceVersion = ServiceVersion.valueOf(version);
 
                         ServiceGroup serviceGroup = new ServiceGroup(serviceType,node,minOnlineAmount,maxOnlineAmount,maxPlayers,name,maxRam,percentageToStartNewService,serviceVersion,javaParams,startArgs);
@@ -68,7 +70,16 @@ public class ServiceGroupManager implements IServiceGroupManager{
     }
 
     @Override
-    public void saveThisModulesGroups() {
+    public void update(IServiceGroup iServiceGroup) {
+        if (getServiceGroup(iServiceGroup.getGroupName()).isEmpty()){
+            getServiceGroups().add(iServiceGroup);
+        }else {
+            getServiceGroup(iServiceGroup.getGroupName()).get().cloneGroupInfo(iServiceGroup);
+        }
+    }
+
+    @Override
+    public void saveGroups() {
         getServiceGroups().forEach(iServiceGroup -> {
             Document document = new Document();
             document.set("name",iServiceGroup.getGroupName())
@@ -104,19 +115,19 @@ public class ServiceGroupManager implements IServiceGroupManager{
         if (!Cloud.getModule().getComponent(NodeProperties.class).isMainNode()) return;
         Cloud.getModule().getScheduledExecutorService().scheduleAtFixedRate(() -> {
             getServiceGroups().forEach(IServiceGroup::update);
-        }, 0,20, TimeUnit.SECONDS);
+        }, 0,5, TimeUnit.SECONDS);
     }
 
     @Override
     public void start() {
         if (!Cloud.getModule().getComponent(NodeProperties.class).isMainNode()) return;
-        loadThisModulesGroups();
+        loadGroups();
         startUpdateSchedule();
     }
 
     @Override
     public void stop() {
         if (!Cloud.getModule().getComponent(NodeProperties.class).isMainNode()) return;
-        saveThisModulesGroups();
+        saveGroups();
     }
 }

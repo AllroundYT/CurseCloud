@@ -8,18 +8,13 @@ import dev.allround.cloud.service.*;
 import dev.allround.cloud.util.NodeProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
-@Setter
 @AllArgsConstructor
 public class ServiceGroup implements IServiceGroup{
 
@@ -44,6 +39,31 @@ public class ServiceGroup implements IServiceGroup{
         return javaParams;
     }
 
+    public void setMinOnlineAmount(int minOnlineAmount) {
+        this.minOnlineAmount = minOnlineAmount;
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createGroupInfoUpdatePacket());
+    }
+
+    public void setMaxOnlineAmount(int maxOnlineAmount) {
+        this.maxOnlineAmount = maxOnlineAmount;
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createGroupInfoUpdatePacket());
+    }
+
+    public void setMaxPlayers(int maxPlayers) {
+        this.maxPlayers = maxPlayers;
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createGroupInfoUpdatePacket());
+    }
+
+    public void setMaxRam(int maxRam) {
+        this.maxRam = maxRam;
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createGroupInfoUpdatePacket());
+    }
+
+    public void setPercentageToStartNewService(double percentageToStartNewService) {
+        this.percentageToStartNewService = percentageToStartNewService;
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createGroupInfoUpdatePacket());
+    }
+
     public ServiceGroup(ServiceType type, String node, String groupName, ServiceVersion serviceVersion) {
         this.type = type;
         this.node = node;
@@ -56,14 +76,25 @@ public class ServiceGroup implements IServiceGroup{
         this.percentageToStartNewService = 0.75d;
         this.javaParams = "-Dcloud.network.host=%HOST% -Dcloud.network.port=%PORT%"
                 .replace("%HOST%",Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerHost())
-                .replace("%PORT%",String.valueOf(Cloud.getModule().getComponent(NodeProperties.class).getMaxServerPort()))
+                .replace("%PORT%",String.valueOf(Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerPort()))
         ;
+        System.out.println("PORT:" + String.valueOf(Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerPort()));
         this.startArgs = "nogui";
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createGroupInfoUpdatePacket());
+    }
+
+    @Override
+    public void cloneGroupInfo(IServiceGroup serviceGroup) {
+        this.minOnlineAmount = serviceGroup.getMinOnlineAmount();
+        this.maxPlayers = serviceGroup.getMaxPlayers();
+        this.maxOnlineAmount = serviceGroup.getMaxOnlineAmount();
+        this.maxRam = serviceGroup.getMaxRam();
+        this.percentageToStartNewService = serviceGroup.getPercentageToStartNewService();
     }
 
     @Override
     public void update() {
-        if (!Cloud.getWrapper().isThisModule(getNode())){
+        if (Cloud.getWrapper().isNotThisModule(getNode())){
             Cloud.getModule().getComponent(INetworkClient.class).sendPacket(PacketType.API_UPDATE_SERVICE_GROUP,new String[]{getGroupName()});
             return;
         }
@@ -71,7 +102,6 @@ public class ServiceGroup implements IServiceGroup{
         while (getOnlineServiceAmount() > getMaxOnlineAmount()) {
             getServices(IService::isOnline).stream().sorted(Comparator.comparingInt(value -> value.getPlayers().size())).toList().get(0).setStatus("BLOCKED");
         }
-
         while (getOnlineServiceAmount() < getMinOnlineAmount() && getOnlineServiceAmount() < getMaxOnlineAmount() ){
             Service service = new Service(this);
             service.start();
@@ -88,7 +118,7 @@ public class ServiceGroup implements IServiceGroup{
 
     @Override
     public boolean updateTemplate(boolean printWarnMsg) {
-        if (!Cloud.getWrapper().isThisModule(getNode())){
+        if (Cloud.getWrapper().isNotThisModule(getNode())){
             return false;
         }
         try {

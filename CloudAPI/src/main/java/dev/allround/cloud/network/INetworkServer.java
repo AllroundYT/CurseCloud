@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public abstract class INetworkServer implements Stopable {
 
     private final PacketSerializer packetSerializer;
-    private final List<CloudSocket> connectedSockets;
+    private final Set<CloudSocket> connectedSockets;
     private final INetworkManager manager;
     private final HashMap<UUID, Consumer<Packet>[]> waitingForResponse;
     private final RecordParser recordParser;
@@ -31,7 +31,7 @@ public abstract class INetworkServer implements Stopable {
         this.packetSerializer = manager.getPacketSerializer();
         this.packetsToSend = new LinkedHashMap<>();
         this.manager = manager;
-        this.connectedSockets = new ArrayList<>();
+        this.connectedSockets = new HashSet<>();
         this.waitingForResponse = new HashMap<>();
         this.recordParser = RecordParser.newDelimited("\n", buffer -> onDataReceive(buffer.toString()));
     }
@@ -63,7 +63,7 @@ public abstract class INetworkServer implements Stopable {
             Cloud.getModule().getCloudLogger().warn("[Network - Server] NetServer could not start listening on port " + finalP);
             Cloud.getModule().getCloudLogger().error(throwable);
         }).onSuccess(netServer -> {
-            Cloud.getModule().getCloudLogger().info("[Network - Server] NetServer is listening on port " + finalP1);
+            Cloud.getModule().getCloudLogger().debug("[Network - Server] NetServer is listening on port " + finalP1);
             this.packetsToSend.forEach((packet, netSocket) -> {
                 netSocket.write(this.packetSerializer.serialize(packet) + "\n");
                 this.packetsToSend.remove(packet, netSocket);
@@ -82,7 +82,7 @@ public abstract class INetworkServer implements Stopable {
         });
         socket.closeHandler(unused -> {
             this.connectedSockets.removeIf(cloudSocket -> cloudSocket.netSocket().equals(socket));
-            Cloud.getModule().getCloudLogger().info("[Network - Server] NetSocket closed! (" + socket.remoteAddress() + ")");
+            Cloud.getModule().getCloudLogger().debug("[Network - Server] NetSocket closed! (" + socket.remoteAddress() + ")");
         });
         socket.exceptionHandler(throwable -> Cloud.getModule().getCloudLogger().error(throwable));
         onClientConnect(socket);
@@ -108,7 +108,7 @@ public abstract class INetworkServer implements Stopable {
         return Optional.ofNullable(this.netServer);
     }
 
-    public List<CloudSocket> getConnectedSockets() {
+    public Set<CloudSocket> getConnectedSockets() {
         return connectedSockets;
     }
 

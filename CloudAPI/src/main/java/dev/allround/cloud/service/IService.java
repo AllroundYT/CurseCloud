@@ -1,5 +1,6 @@
 package dev.allround.cloud.service;
 
+import com.google.gson.Gson;
 import dev.allround.cloud.Cloud;
 import dev.allround.cloud.network.Packet;
 import dev.allround.cloud.network.PacketType;
@@ -93,6 +94,7 @@ public interface IService extends Startable, Stopable { //TODO: Service muss neu
                 .collect(Collectors.toList());
     }
 
+    void cloneServiceInfo(IService service);
     String getServiceGroup();
 
     String getJavaParams();
@@ -105,6 +107,27 @@ public interface IService extends Startable, Stopable { //TODO: Service muss neu
 
     default Packet createServiceInfoUpdatePacket() {
         return new Packet(
+                PacketType.SERVICE_INFO_UPDATE,
+                new Gson().toJson(
+                        new ServiceInfoSnapshot(
+                                getServiceID(),
+                                getMotd()[0],
+                                getMotd()[1],
+                                getStatus(),
+                                getSocketAddress().host(),
+                                getJavaParams(),
+                                getStartArgs(),
+                                getType().name(),
+                                getNode(),
+                                getServiceGroup(),
+                                getServiceVersion().name(),
+                                getSocketAddress().port(),
+                                getMaxPlayers(),
+                                getMaxRam()
+                        )
+                )
+        );
+        /*return new Packet(
                 PacketType.SERVICE_INFO_UPDATE,
                 getServiceID(),
                 getStatus(),
@@ -120,5 +143,7 @@ public interface IService extends Startable, Stopable { //TODO: Service muss neu
                 getMotd()[0],
                 getMotd()[1]
         );
+
+         */
     }
 }

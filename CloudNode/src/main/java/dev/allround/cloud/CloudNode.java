@@ -3,9 +3,9 @@ package dev.allround.cloud;
 
 import dev.allround.cloud.command.CommandManager;
 import dev.allround.cloud.command.InputManager;
-import dev.allround.cloud.event.EventManager;
 import dev.allround.cloud.log.NodeLogger;
 import dev.allround.cloud.network.*;
+import dev.allround.cloud.player.PlayerManager;
 import dev.allround.cloud.service.ServiceManager;
 import dev.allround.cloud.service.ServiceType;
 import dev.allround.cloud.service.ServiceVersion;
@@ -85,10 +85,13 @@ public class CloudNode implements CloudModule {
                 if (o instanceof Startable startable) startable.start();
             });
 
-
-            ServiceGroup serviceGroup = new ServiceGroup(ServiceType.SERVER,getModuleInfo().name(),"TestGroup", ServiceVersion.SPIGOT_1_18_2);
-            getComponent(IServiceGroupManager.class).registerServiceGroup(serviceGroup);
-            getComponent(IServiceGroupManager.class).saveThisModulesGroups();
+            if (getComponent(NodeProperties.class).isMainNode()){
+                ServiceGroup serviceGroup = new ServiceGroup(ServiceType.SERVER,getModuleInfo().name(),"TestGroup", ServiceVersion.SPIGOT_1_18_2);
+                serviceGroup.setMinOnlineAmount(3);
+                serviceGroup.setMaxOnlineAmount(5);
+                getComponent(IServiceGroupManager.class).registerServiceGroup(serviceGroup);
+                getComponent(IServiceGroupManager.class).saveGroups();
+            }
         }, getComponent(NodeProperties.class).isMainNode() ? 2 : 1);
 
         getComponents().forEach(o -> {
@@ -170,11 +173,11 @@ public class CloudNode implements CloudModule {
         registerComponent(new NetworkManager());
         registerComponent(new NetworkClient(getComponent(INetworkManager.class)));
         registerComponent(new NetworkServer(getComponent(INetworkManager.class)));
-        registerComponent(new EventManager());
         registerComponent(new InputManager());
         registerComponent(new CommandManager());
         registerComponent(new ServiceGroupManager());
         registerComponent(new ServiceManager());
+        registerComponent(new PlayerManager());
 
         Path nodePropertiesPath = Path.of("node.properties");
         if (!Files.exists(nodePropertiesPath)) this.firstStart = true;

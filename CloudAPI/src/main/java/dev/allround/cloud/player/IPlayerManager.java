@@ -8,4 +8,8 @@ public interface IPlayerManager {
     Optional<ICloudPlayer> getCloudPlayer(UUID uuid);
 
     List<ICloudPlayer> getCloudPlayers();
+
+    void registerPlayer(ICloudPlayer iCloudPlayer);
+
+    void registerPlayer(UUID uuid, String name);
 }

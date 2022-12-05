@@ -1,11 +1,12 @@
 package dev.allround.cloud;
 
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ModuleWrapper {
     private static ModuleWrapper instance;
-    private final ArrayList<ModuleInfo> moduleInfos;
+    private final Set<ModuleInfo> moduleInfos;
     private ModuleInfo thisModulesInfo;
 
     public void setThisModulesInfo(ModuleInfo thisModulesInfo) {
@@ -13,7 +14,7 @@ public class ModuleWrapper {
     }
 
     public ModuleWrapper() {
-        this.moduleInfos = new ArrayList<>();
+        this.moduleInfos = new HashSet<>();
     }
 
     public static ModuleWrapper getInstance() {
@@ -26,11 +27,15 @@ public class ModuleWrapper {
         Cloud.setWrapper(getInstance());
     }
 
+    public boolean isNotThisModule(String name){
+        return !getThisModule().name().equals(name);
+    }
+
     public boolean isThisModule(String name){
         return getThisModule().name().equals(name);
     }
 
-    public ArrayList<ModuleInfo> getModuleInfos() {
+    public Set<ModuleInfo> getModuleInfos() {
         return moduleInfos;
     }
 

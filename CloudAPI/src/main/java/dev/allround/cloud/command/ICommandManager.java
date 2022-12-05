@@ -1,8 +1,7 @@
 package dev.allround.cloud.command;
 
 import dev.allround.cloud.Cloud;
-import dev.allround.cloud.command.premade.HelpCommand;
-import dev.allround.cloud.command.premade.InfoCommand;
+import dev.allround.cloud.command.premade.*;
 import dev.allround.cloud.util.Initializeable;
 
 import java.util.ArrayList;
@@ -50,6 +49,14 @@ public abstract class ICommandManager implements Initializeable {
     public void registerDefaultCommands() {
         registerCommand(new HelpCommand(), "Help", "Help displays all commands.", "", "?");
         registerCommand(new InfoCommand(), "Information", "Displays information about the cloud.", "", "Info");
+        registerCommand(new ListModulesCommand(), "ListSockets", "Displays a list with all connected sockets.", "cloud.command.listsockets", "lns");
+        registerCommand(new StopCommand(), "StopNode", "Stops this node.", "cloud.command.stopnode", "stopn", "stop");
+        registerCommand(new RestartCommand(),"RestartNode","Restarts this node","cloud.command.restartnode","restartn","restart");
+        registerCommand(new AddGroupCommand(),"AddGroup","Adds a new group","cloud.command.addgroup","agroup","creategroup");
+        registerCommand(new ListGroupsCommand(),"listgroups","","","lg");
+        registerCommand(new ListServicesCommand(),"listServices","","","ls");
+        registerCommand(new ServiceInfoCommand(),"serviceInfo","","","si","serinfo");
+        registerCommand(new GroupInfoCommand(),"groupinfo","","","gi","ginfo");
     }
 
     private boolean hasPermission(ICommandSender sender, String perm) {

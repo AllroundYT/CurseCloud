@@ -9,25 +9,22 @@ import io.vertx.core.Vertx;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 
-public abstract class INetworkManager implements Stopable, Initializeable {
-    private final List<PacketListener> clientListeners;
-    private final List<PacketListener> serverPacketListeners;
-    private final List<String> trustedAddresses;
+public abstract class INetworkManager implements Initializeable {
+    private final Set<PacketListener> clientListeners;
+    private final Set<PacketListener> serverPacketListeners;
+    private final Set<String> trustedAddresses;
     private final PacketSerializer packetSerializer;
 
     public INetworkManager() {
         Cloud.getModule().registerComponent(Vertx.vertx());
         Cloud.getModule().getComponent(Vertx.class).exceptionHandler(throwable -> Cloud.getModule().getCloudLogger().error(throwable));
         this.packetSerializer = new PacketSerializer();
-        this.clientListeners = new ArrayList<>();
-        this.trustedAddresses = new ArrayList<>();
-        this.serverPacketListeners = new ArrayList<>();
+        this.clientListeners = new HashSet<>();
+        this.trustedAddresses = new HashSet<>();
+        this.serverPacketListeners = new HashSet<>();
 
         trustedAddresses.add("127.0.0.1");
 
@@ -44,17 +41,11 @@ public abstract class INetworkManager implements Stopable, Initializeable {
     }
 
 
-    @Override
-    public void stop() {
-
-    }
-
-
-    public List<PacketListener> getServerPacketListeners() {
+    public Set<PacketListener> getServerPacketListeners() {
         return serverPacketListeners;
     }
 
-    public List<String> getTrustedAddresses() {
+    public Set<String> getTrustedAddresses() {
         return trustedAddresses;
     }
 
@@ -70,7 +61,7 @@ public abstract class INetworkManager implements Stopable, Initializeable {
         this.serverPacketListeners.addAll(List.of(packetListeners));
     }
 
-    public List<PacketListener> getPacketListeners() {
+    public Set<PacketListener> getPacketListeners() {
         return clientListeners;
     }
 

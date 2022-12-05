@@ -1,5 +1,6 @@
 package dev.allround.cloud.player;
 
+import com.google.gson.Gson;
 import dev.allround.cloud.command.ICommandSender;
 import dev.allround.cloud.network.Packet;
 import dev.allround.cloud.network.PacketType;
@@ -14,6 +15,8 @@ public interface ICloudPlayer extends ICommandSender {
     String getProxy();
     boolean isOnline();
 
+    boolean isOperator();
+
     void kick(String reason);
 
     void send(IService iService);
@@ -21,15 +24,32 @@ public interface ICloudPlayer extends ICommandSender {
     List<String> getData();
 
     default Packet createPlayerInfoUpdatePacket(){
-        List<String> data = new ArrayList<>(List.of(
+        return new Packet(
+                PacketType.PLAYER_INFO_UPDATE,
+                new Gson().toJson(
+                        new CloudPlayerInfoSnapshot(
+                        getUuid(),
+                        getName(),
+                        getProxy(),
+                        getService(),
+                        isOperator(),
+                        isOnline(),
+                        getData().toArray(new String[0])
+                ))
+        );
+        /*List<String> data = new ArrayList<>(List.of(
                 getName(),
                 String.valueOf(getUuid()),
                 getService(),
-                String.valueOf(isOnline()))
+                getProxy(),
+                String.valueOf(isOnline()),
+                String.valueOf(isOperator()))
         );
         data.addAll(getData());
 
         return new Packet(PacketType.PLAYER_INFO_UPDATE,data.toArray(new String[0]));
+
+         */
     }
 
 }

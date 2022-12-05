@@ -17,28 +17,8 @@ public interface IServiceGroupManager extends Startable, Stopable {
 
     List<IServiceGroup> getServiceGroups();
 
-
-    /**
-     * startet neue services von der angegebenen Gruppe falls notwendig. Oder setzt services auf die shutdown list
-     */
-    /*default void updateGroup(IServiceGroup iServiceGroup) {
-        while (iServiceGroup.getOnlineServiceAmount() > iServiceGroup.getMaxOnlineAmount()) {
-            iServiceGroup.getServices().sort(Comparator.comparing(o -> o.getPlayers().size()));
-            IService iService = iServiceGroup.getServices().get(0);
-            Cloud.getModule().getComponent(IServiceManager.class).queueStop(iService);
-        }
-        while (iServiceGroup.getOnlineServiceAmount() < iServiceGroup.getMaxOnlineAmount() && iServiceGroup.needNewService()){
-            IService iService = Cloud.getModule().getComponent(IServiceManager.class).createService(iServiceGroup);
-            Cloud.getModule().getComponent(IServiceManager.class).queueStart(iService);
-        }
-
-        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(iServiceGroup.createGroupInfoUpdatePacket());
-    }
-
-     */
-
-    void loadThisModulesGroups();
-    void saveThisModulesGroups();
+    void loadGroups();
+    void saveGroups();
     void updateGroups(IServiceGroup... iServiceGroups);
 
     default List<IServiceGroup> getServiceGroups(String node){
@@ -46,6 +26,8 @@ public interface IServiceGroupManager extends Startable, Stopable {
                 .filter(iServiceGroup -> iServiceGroup.getNode().equals(node))
                 .collect(Collectors.toList());
     }
+
+    void update(IServiceGroup iServiceGroup);
 
     default ModuleInfo getNodeWithLowestGroupCount(){
         return Cloud.getWrapper().getModuleInfos().stream()
@@ -61,6 +43,8 @@ public interface IServiceGroupManager extends Startable, Stopable {
             return;
 
         getServiceGroups().add(serviceGroup);
-        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(serviceGroup.createGroupInfoUpdatePacket());
+        if (Cloud.getWrapper().isThisModule(serviceGroup.getNode())){
+            Cloud.getModule().getComponent(INetworkClient.class).sendPacket(serviceGroup.createGroupInfoUpdatePacket());
+        }
     }
 }

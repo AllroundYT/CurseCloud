@@ -1,9 +1,5 @@
 package dev.allround.cloud.event;
 
-public class EventManager extends IEventManager {
+public class EventManager{
 
-    @Override
-    public void init() {
-
-    }
 }

@@ -5,10 +5,13 @@ import dev.allround.cloud.network.INetworkClient;
 import dev.allround.cloud.network.Packet;
 import dev.allround.cloud.network.PacketType;
 import dev.allround.cloud.service.IService;
+import lombok.AllArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@AllArgsConstructor
 public class CloudPlayer implements ICloudPlayer {
     private final UUID uuid;
     private final String name;
@@ -16,10 +19,12 @@ public class CloudPlayer implements ICloudPlayer {
     private String service;
     private String proxy;
     private boolean operator;
+    private final List<String> data;
 
     public CloudPlayer(UUID uuid, String name) {
         this.uuid = uuid;
         this.name = name;
+        this.data = new ArrayList<>();
     }
 
     public boolean isOperator() {
@@ -43,7 +48,7 @@ public class CloudPlayer implements ICloudPlayer {
 
     @Override
     public void sendMessage(Object msg) {
-        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(new Packet(PacketType.API_SEND_MSG_TO_PLAYER,getUuid().toString(),String.valueOf(msg)));
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(new Packet(PacketType.API_SEND_MSG_TO_PLAYER, getUuid().toString(), String.valueOf(msg)));
     }
 
     @Override
@@ -63,13 +68,7 @@ public class CloudPlayer implements ICloudPlayer {
 
     @Override
     public boolean hasPermission(String perm) {
-        return isOnline();
-    }
-
-
-    public CloudPlayer setProxy(String proxy) {
-        this.proxy = proxy;
-        return this;
+        return isOperator();
     }
 
     @Override
@@ -77,35 +76,34 @@ public class CloudPlayer implements ICloudPlayer {
         return service;
     }
 
-    @Override
-    public String getProxy() {
-        return proxy;
-    }
-
     public void setService(String service) {
         this.service = service;
     }
 
     @Override
+    public String getProxy() {
+        return proxy;
+    }
+
+    public CloudPlayer setProxy(String proxy) {
+        this.proxy = proxy;
+        return this;
+    }
+
+    @Override
     public void kick(String reason) {
         if (!isOnline()) return;
-        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(new Packet(PacketType.API_KICK_PLAYER, this.uuid.toString()), packet -> {
-            Cloud.getModule().getCloudLogger().info("[Player Management] Player kicked -> " + getName());
-        });
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(new Packet(PacketType.API_KICK_PLAYER, this.uuid.toString(), reason));
     }
 
     @Override
     public void send(IService iService) {
         if (!isOnline()) return;
-        String cachedService = getService();
-        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(new Packet(PacketType.API_SEND_PLAYER, this.uuid.toString(), iService.getServiceID()), packet -> {
-            Cloud.getModule().getCloudLogger().info("[Player Management] Sent " + cachedService + " from " + getService() + " to " + iService.getServiceID());
-            setService(iService.getServiceID());
-        });
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(new Packet(PacketType.API_SEND_PLAYER, this.uuid.toString(), iService.getServiceID()));
     }
 
     @Override
     public List<String> getData() {
-        return null;
+        return data;
     }
 }

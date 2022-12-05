@@ -9,6 +9,7 @@ import dev.allround.cloud.util.FileUtils;
 import dev.allround.cloud.util.NodeProperties;
 import dev.allround.cloud.util.PortChecker;
 import io.vertx.core.net.SocketAddress;
+import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.UUID;
 
+@AllArgsConstructor
 public class Service implements IService {
     private final String node;
     private final SocketAddress socketAddress;
@@ -30,7 +32,6 @@ public class Service implements IService {
     private String[] motd;
     private String status;
     private int maxPlayers;
-    private long pid;
     private Process process;
 
     @Override
@@ -96,7 +97,7 @@ public class Service implements IService {
 
     @Override
     public boolean copyTemplate(boolean printWarnMsg) {
-        if (!Cloud.getWrapper().isThisModule(getNode())) return false;
+        if (Cloud.getWrapper().isNotThisModule(getNode())) return false;
         if (Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroup(getServiceGroup()).isEmpty()) {
             return false;
         }
@@ -112,9 +113,7 @@ public class Service implements IService {
         try {
             FileUtils.copy(templatePath.toFile(), tempPath.toFile());
             System.out.println("Template Copied");
-            Files.list(templatePath).forEach(path -> System.out.println("Template File or Dir: " + path.toAbsolutePath()));
-            Files.list(tempPath).forEach(path -> System.out.println("Temp File or Dir: " + path.toAbsolutePath()));
-        } catch (IOException e) {
+            } catch (IOException e) {
             Cloud.getModule().getCloudLogger().error(e);
             return false;
         }
@@ -136,6 +135,7 @@ public class Service implements IService {
     @Override
     public void setMotd(String[] motd) {
         this.motd = motd;
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createServiceInfoUpdatePacket());
     }
 
     @Override
@@ -161,6 +161,7 @@ public class Service implements IService {
     @Override
     public void setStatus(String status) {
         this.status = status;
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createServiceInfoUpdatePacket());
     }
 
     @Override
@@ -191,12 +192,13 @@ public class Service implements IService {
     @Override
     public void setMaxPlayers(int maxPlayers) {
         this.maxPlayers = maxPlayers;
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createServiceInfoUpdatePacket());
     }
 
 
     @Override
     public void start() {
-        if (!Cloud.getWrapper().isThisModule(getNode())) {
+        if (Cloud.getWrapper().isNotThisModule(getNode())) {
             return;
         }
         setStatus("READY");
@@ -208,19 +210,38 @@ public class Service implements IService {
         }
 
         Cloud.getModule().getComponent(IServiceManager.class).queueStart(this);
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createServiceInfoUpdatePacket());
     }
 
-
+    @Override
+    public void cloneServiceInfo(IService service) {
+        this.status = service.getStatus();
+        this.maxPlayers = service.getMaxPlayers();
+        this.motd = service.getMotd();
+    }
 
     @Override
     public void stop() {
-        if (!Cloud.getWrapper().isThisModule(getNode())) {
+        if (Cloud.getWrapper().isNotThisModule(getNode())) {
             Cloud.getModule().getComponent(INetworkClient.class).sendPacket(PacketType.API_STOP_SERVICE, new String[]{getServiceID()});
             return;
         }
 
+
+        IServiceManager iServiceManager = Cloud.getModule().getComponent(IServiceManager.class);
+        iServiceManager.unregisterServices(this);
+        /*
+        try {
+            getProcess().getOutputStream().write("stop".getBytes());
+            getProcess().getOutputStream().flush();
+        }catch (IOException e){
+            Cloud.getModule().getCloudLogger().error(e);
+        }
         if (getProcess() != null) getProcess().destroyForcibly();
 
+         */
+
         //TODO: Service muss entregistriert werden und ein Shutdown packet an den Service gesendet werden
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createServiceInfoUpdatePacket());
     }
 }

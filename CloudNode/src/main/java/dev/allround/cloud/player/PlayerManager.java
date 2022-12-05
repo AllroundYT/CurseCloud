@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class PlayerManager implements IPlayerManager {
+public class PlayerManager implements IPlayerManager{
     private final List<ICloudPlayer> cloudPlayers;
 
     public PlayerManager() {
@@ -24,11 +24,12 @@ public class PlayerManager implements IPlayerManager {
 
     @Override
     public void registerPlayer(ICloudPlayer iCloudPlayer) {
-
+        this.cloudPlayers.add(iCloudPlayer);
     }
 
     @Override
-    public void registerPlayer(UUID uuid, String name) {
-
+    public void registerPlayer(UUID uuid,String name) {
+        CloudPlayer cloudPlayer = new CloudPlayer(uuid,name);
+        this.cloudPlayers.add(cloudPlayer);
     }
 }

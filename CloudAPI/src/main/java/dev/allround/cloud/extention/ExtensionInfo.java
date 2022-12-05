@@ -1,42 +1,22 @@
 package dev.allround.cloud.extention;
 
+import lombok.Getter;
+
+@Getter
 public class ExtensionInfo {
-    private final String name, mainClass, version, author, description;
+    private final String name, mainClass, version, author, description,apiVersion;
     private CloudExtension cloudExtension;
     private boolean loaded, enabled;
 
-    public ExtensionInfo(String name, String mainClass, String version, String author, String description) {
+    public ExtensionInfo(String name, String mainClass, String version, String author, String description, String apiVersion) {
         this.name = name;
         this.mainClass = mainClass;
         this.version = version;
         this.author = author;
         this.description = description;
+        this.apiVersion = apiVersion;
         this.loaded = false;
         this.enabled = false;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getMainClass() {
-        return mainClass;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public CloudExtension getCloudExtension() {
-        return cloudExtension;
     }
 
     public ExtensionInfo setCloudExtension(CloudExtension cloudExtension) {
@@ -44,17 +24,10 @@ public class ExtensionInfo {
         return this;
     }
 
-    public boolean isLoaded() {
-        return loaded;
-    }
 
     public ExtensionInfo setLoaded(boolean loaded) {
         this.loaded = loaded;
         return this;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
     }
 
     public ExtensionInfo setEnabled(boolean enabled) {

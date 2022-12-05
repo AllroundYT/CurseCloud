@@ -1,5 +1,6 @@
 package dev.allround.cloud.servicegroup;
 
+import com.google.gson.Gson;
 import dev.allround.cloud.Cloud;
 import dev.allround.cloud.network.Packet;
 import dev.allround.cloud.network.PacketType;
@@ -86,17 +87,43 @@ public interface IServiceGroup {
     ServiceVersion getServiceVersion();
     void setPercentageToStartNewService(double amount);
 
+    void cloneGroupInfo(IServiceGroup serviceGroup);
+
     default Packet createGroupInfoUpdatePacket() {
         return new Packet(
+                PacketType.GROUP_INFO_UPDATE,
+                new Gson().toJson(
+                        new ServiceGroupInfoSnapshot(
+                                getJavaParams(),
+                                getStartArgs(),
+                                getType().name(),
+                                getNode(),
+                                getGroupName(),
+                                getServiceVersion().name(),
+                                getMinOnlineAmount(),
+                                getMaxOnlineAmount(),
+                                getMaxPlayers(),
+                                getMaxRam(),
+                                getPercentageToStartNewService()
+                        )
+                )
+        );
+        /*return new Packet(
                 PacketType.GROUP_INFO_UPDATE,
                 getGroupName(),
                 getNode(),
                 getType().name(),
+                getServiceVersion().name(),
                 String.valueOf(getMinOnlineAmount()),
                 String.valueOf(getMaxOnlineAmount()),
                 String.valueOf(getMaxRam()),
-                String.valueOf(getPercentageToStartNewService())
+                String.valueOf(getPercentageToStartNewService()),
+                getStartArgs(),
+                getJavaParams(),
+                String.valueOf(getMaxPlayers())
                 );
+
+         */
     }
 
     boolean needNewService();

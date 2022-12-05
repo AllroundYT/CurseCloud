@@ -42,12 +42,12 @@ public abstract class INetworkClient implements Stopable {
         return netClient.connect(address.getPort(), address.getAddress().getHostAddress()).onSuccess(netSocket -> {
             this.netSocket = netSocket;
             netSocket.handler(this.recordParser);
-            netSocket.closeHandler(unused -> Cloud.getModule().getCloudLogger().info("[Network - Client] NetSocket closed!"));
+            netSocket.closeHandler(unused -> Cloud.getModule().getCloudLogger().debug("[Network - Client] NetSocket closed!"));
             netSocket.exceptionHandler(throwable -> {
                 Cloud.getModule().getCloudLogger().error("[Network - Client] NetSocket has thrown an exception.");
                 Cloud.getModule().getCloudLogger().error(throwable);
             });
-            Cloud.getModule().getCloudLogger().info("[Network - Client] NetSocket ready!");
+            Cloud.getModule().getCloudLogger().debug("[Network - Client] NetSocket ready!");
             while (this.packetsToSend.size() > 0) {
                 writePacket(this.packetsToSend.remove());
             }
