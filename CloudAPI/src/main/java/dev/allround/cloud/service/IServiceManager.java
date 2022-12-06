@@ -8,6 +8,7 @@ import java.util.Set;
 
 public interface IServiceManager extends Startable, Stopable {
     Set<IService> getServices();
+
     Optional<IService> getService(String serviceId);
 
     void registerServices(IService... iServices);

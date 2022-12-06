@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public class ExtensionInfo {
-    private final String name, mainClass, version, author, description,apiVersion;
+    private final String name, mainClass, version, author, description, apiVersion;
     private CloudExtension cloudExtension;
     private boolean loaded, enabled;
 

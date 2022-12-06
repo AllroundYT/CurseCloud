@@ -1,7 +1,7 @@
 package dev.allround.cloud;
 
-import dev.allround.cloud.info.Listener;
 import dev.allround.cloud.extention.CloudExtension;
+import dev.allround.cloud.info.Listener;
 import dev.allround.cloud.network.INetworkManager;
 
 public class ExtensionDiscord implements CloudExtension {

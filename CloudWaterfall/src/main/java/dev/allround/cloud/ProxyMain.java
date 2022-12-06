@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
-public class ProxyMain  implements CloudModule {
+public class ProxyMain implements CloudModule {
     private final String name;
     private final String version;
     private final UUID id;
@@ -49,8 +49,8 @@ public class ProxyMain  implements CloudModule {
         getComponents().clear(); //don't touch
 
         registerComponent(new CloudProxyLogger());
-        registerComponent(new ProxyProperties(System.getProperty("cloud.service.id"),System.getProperty("cloud.service.group"),Integer.getInteger("cloud.network.port"),System.getProperty("cloud.network.host")));
-        registerComponent(new ModuleInfo(System.getProperty("cloud.service.id"),Cloud.VERSION,UUID.randomUUID(),ModuleType.PROXY));
+        registerComponent(new ProxyProperties(System.getProperty("cloud.service.id"), System.getProperty("cloud.service.group"), Integer.getInteger("cloud.network.port"), System.getProperty("cloud.network.host")));
+        registerComponent(new ModuleInfo(System.getProperty("cloud.service.id"), Cloud.VERSION, UUID.randomUUID(), ModuleType.PROXY));
         registerComponent(Executors.newCachedThreadPool()); //don't touch
         registerComponent(Executors.newScheduledThreadPool(1)); //don't touch
 

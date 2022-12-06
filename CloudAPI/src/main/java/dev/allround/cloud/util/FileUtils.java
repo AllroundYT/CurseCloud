@@ -51,6 +51,7 @@ public class FileUtils {
             }
         }
     }
+
     public static void setupDirectories(Path... paths) throws IOException {
         for (Path path : paths) {
             Files.createDirectories(path);
@@ -117,7 +118,8 @@ public class FileUtils {
     public static Path getFile(Path path) {
 
         try {
-            if (!Files.exists(path.toAbsolutePath().getParent())) Files.createDirectories(path.toAbsolutePath().getParent());
+            if (!Files.exists(path.toAbsolutePath().getParent()))
+                Files.createDirectories(path.toAbsolutePath().getParent());
             if (!Files.exists(path.toAbsolutePath())) Files.createFile(path.toAbsolutePath());
         } catch (IOException e) {
             Cloud.getModule().getCloudLogger().error(e);

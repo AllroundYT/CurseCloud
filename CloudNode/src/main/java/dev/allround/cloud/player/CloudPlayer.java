@@ -15,11 +15,11 @@ import java.util.UUID;
 public class CloudPlayer implements ICloudPlayer {
     private final UUID uuid;
     private final String name;
+    private final List<String> data;
     private boolean online;
     private String service;
     private String proxy;
     private boolean operator;
-    private final List<String> data;
 
     public CloudPlayer(UUID uuid, String name) {
         this.uuid = uuid;
@@ -48,7 +48,7 @@ public class CloudPlayer implements ICloudPlayer {
 
     @Override
     public void sendMessage(Object msg) {
-        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(new Packet(PacketType.API_SEND_MSG_TO_PLAYER, getUuid().toString(),String.valueOf(msg)));
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(new Packet(PacketType.API_SEND_MSG_TO_PLAYER, getUuid().toString(), String.valueOf(msg)));
     }
 
     @Override
@@ -91,7 +91,7 @@ public class CloudPlayer implements ICloudPlayer {
     }
 
     @Override
-    public void clonePlayerInfo(ICloudPlayer cloudPlayer){
+    public void clonePlayerInfo(ICloudPlayer cloudPlayer) {
         this.online = cloudPlayer.isOnline();
         this.operator = cloudPlayer.isOperator();
         this.service = cloudPlayer.getService();

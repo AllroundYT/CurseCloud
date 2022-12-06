@@ -3,10 +3,10 @@ package dev.allround.cloud;
 import org.jetbrains.annotations.NotNull;
 
 public class Cloud {
+    public static String VERSION = "0.1-Development";
     private static CloudModule module;
     private static ModuleWrapper wrapper;
 
-    public static String VERSION = "0.1-Development";
     public static CloudModule getModule() {
         return module;
     }
@@ -16,11 +16,11 @@ public class Cloud {
         Cloud.wrapper.setThisModulesInfo(module.getModuleInfo());
     }
 
-    public static void setWrapper(ModuleWrapper wrapper) {
-        Cloud.wrapper = wrapper;
-    }
-
     public static ModuleWrapper getWrapper() {
         return wrapper;
+    }
+
+    public static void setWrapper(ModuleWrapper wrapper) {
+        Cloud.wrapper = wrapper;
     }
 }

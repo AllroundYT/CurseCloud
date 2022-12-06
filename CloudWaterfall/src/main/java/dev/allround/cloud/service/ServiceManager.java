@@ -1,16 +1,11 @@
 package dev.allround.cloud.service;
 
-import dev.allround.cloud.Cloud;
-import dev.allround.cloud.network.INetworkClient;
-import dev.allround.cloud.util.FileUtils;
-import dev.allround.cloud.util.Stopable;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-public class ServiceManager implements IServiceManager{
+public class ServiceManager implements IServiceManager {
 
     private final Set<IService> services;
 
@@ -29,13 +24,13 @@ public class ServiceManager implements IServiceManager{
     }
 
     @Override
-    public void registerServices(IService... iServices){
+    public void registerServices(IService... iServices) {
         this.services.addAll(List.of(iServices));
     }
 
     @Override
     public void unregisterServices(IService... iServices) {
-        synchronized (this.services){
+        synchronized (this.services) {
             List.of(iServices).forEach(this.services::remove);
         }
     }
@@ -46,15 +41,15 @@ public class ServiceManager implements IServiceManager{
 
     @Override
     public void update(IService iService) {
-        if (getService(iService.getServiceID()).isEmpty()){
+        if (getService(iService.getServiceID()).isEmpty()) {
             getServices().add(iService);
-        }else {
+        } else {
             getService(iService.getServiceID()).get().cloneServiceInfo(iService);
         }
     }
 
     @Override
-    public void queueStart(IService iService){ //INFO: Wird nur beim Main node genutzt
+    public void queueStart(IService iService) { //INFO: Wird nur beim Main node genutzt
     }
 
     @Override

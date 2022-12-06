@@ -86,7 +86,7 @@ public class NodeLogger implements Logger, Stopable {
         for (Object o : objects) {
             if (o instanceof Throwable throwable) {
                 log(level, print, throwable.getMessage());
-                log(level,print,throwable.getLocalizedMessage());
+                log(level, print, throwable.getLocalizedMessage());
                 log(level, print, throwable.getStackTrace());
                 log(level, print, throwable.getCause());
                 log(level, print, throwable.getSuppressed());
@@ -113,7 +113,7 @@ public class NodeLogger implements Logger, Stopable {
                     logFile.toFile().delete();
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             error(e);
         }
 
@@ -130,7 +130,6 @@ public class NodeLogger implements Logger, Stopable {
         } catch (IOException e) {
             error(e);
         }
-
 
 
         File warnLogFile = FileUtils.getFile(Path.of("logs", System.currentTimeMillis() + ".warn.log")).toFile();

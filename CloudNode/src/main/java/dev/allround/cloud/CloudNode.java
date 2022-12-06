@@ -25,21 +25,21 @@ import java.util.UUID;
 import java.util.concurrent.Executors;
 
 public class CloudNode implements CloudModule {
-    private String name;
     private final String version;
     private final UUID id;
     private final ArrayList<Object> components;
+    private String name;
     private boolean firstStart;
-
-    public boolean isFirstStart() {
-        return firstStart;
-    }
 
     public CloudNode(String name, String version) {
         this.components = new ArrayList<>();
         this.name = name;
         this.version = version;
         this.id = UUID.randomUUID();
+    }
+
+    public boolean isFirstStart() {
+        return firstStart;
     }
 
     public CloudNode setName(String name) {
@@ -67,7 +67,7 @@ public class CloudNode implements CloudModule {
         Instant start = Instant.now();
 
 
-        ((NodeLogger)getCloudLogger()).setDebugMode(getComponent(NodeProperties.class).isDebugModeEnabled());
+        ((NodeLogger) getCloudLogger()).setDebugMode(getComponent(NodeProperties.class).isDebugModeEnabled());
 
         ProgressFuture progressFuture = new ProgressFuture(() -> {
 
@@ -80,14 +80,14 @@ public class CloudNode implements CloudModule {
             getCloudLogger().info("");
             getCloudLogger().warn("PLEASE KEEP IN MIND THAT YOU HAVE TO SHUTDOWN THIS CLOUD BEFORE KILLING ITS PROCESS!");
             getCloudLogger().info("");
-            if (isFirstStart()){
+            if (isFirstStart()) {
                 getCloudLogger().info("This seems to be the first start of this cloud node.");
                 getCloudLogger().info("If it shouldn't be the main node please edit the node.properties file and restart the cloud via the restart command.");
                 getCloudLogger().info("");
             }
 
-            if (getComponent(NodeProperties.class).isMainNode()){
-                ServiceGroup serviceGroup = new ServiceGroup(ServiceType.SERVER,getModuleInfo().name(),"TestGroup", ServiceVersion.SPIGOT_1_18_2);
+            if (getComponent(NodeProperties.class).isMainNode()) {
+                ServiceGroup serviceGroup = new ServiceGroup(ServiceType.SERVER, getModuleInfo().name(), "TestGroup", ServiceVersion.SPIGOT_1_18_2);
                 serviceGroup.setMinOnlineAmount(3);
                 serviceGroup.setMaxOnlineAmount(5);
                 getComponent(IServiceGroupManager.class).registerServiceGroup(serviceGroup);
@@ -135,7 +135,7 @@ public class CloudNode implements CloudModule {
         System.out.println(getCloudLogger().getCloudLogo());
     }
 
-    public Packet createNodeInfoUpdatePacket(){
+    public Packet createNodeInfoUpdatePacket() {
         return new Packet(
                 PacketType.NODE_INFO_UPDATE,
                 getModuleInfo().name(),
@@ -160,11 +160,11 @@ public class CloudNode implements CloudModule {
                     Path.of("templates"),
                     Path.of("security"),
                     Path.of("temp"),
-                    Path.of("temp","proxy"),
-                    Path.of("temp","server"),
+                    Path.of("temp", "proxy"),
+                    Path.of("temp", "server"),
                     Path.of("cache"),
                     Path.of("data"),
-                    Path.of("data","groups")
+                    Path.of("data", "groups")
             );
         } catch (IOException e) {
             getCloudLogger().error(e);

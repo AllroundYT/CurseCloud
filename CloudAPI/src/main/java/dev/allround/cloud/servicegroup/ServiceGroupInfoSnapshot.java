@@ -6,8 +6,8 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public class ServiceGroupInfoSnapshot {
-    private final String javaParams,startArgs,serviceType,node,groupName,serviceVersion;
-    private final int minOnlineAmount,maxOnlineAmount,maxPlayers,maxRam;
+    private final String javaParams, startArgs, serviceType, node, groupName, serviceVersion;
+    private final int minOnlineAmount, maxOnlineAmount, maxPlayers, maxRam;
     private final double percentageToStartNewService;
 
     @Override

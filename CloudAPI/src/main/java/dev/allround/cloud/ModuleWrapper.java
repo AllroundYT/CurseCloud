@@ -9,10 +9,6 @@ public class ModuleWrapper {
     private final Set<ModuleInfo> moduleInfos;
     private ModuleInfo thisModulesInfo;
 
-    public void setThisModulesInfo(ModuleInfo thisModulesInfo) {
-        this.thisModulesInfo = thisModulesInfo;
-    }
-
     public ModuleWrapper() {
         this.moduleInfos = new HashSet<>();
     }
@@ -27,11 +23,15 @@ public class ModuleWrapper {
         Cloud.setWrapper(getInstance());
     }
 
-    public boolean isNotThisModule(String name){
+    public void setThisModulesInfo(ModuleInfo thisModulesInfo) {
+        this.thisModulesInfo = thisModulesInfo;
+    }
+
+    public boolean isNotThisModule(String name) {
         return !getThisModule().name().equals(name);
     }
 
-    public boolean isThisModule(String name){
+    public boolean isThisModule(String name) {
         return getThisModule().name().equals(name);
     }
 

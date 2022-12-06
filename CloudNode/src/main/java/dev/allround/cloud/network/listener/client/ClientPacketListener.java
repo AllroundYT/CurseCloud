@@ -75,7 +75,7 @@ public class ClientPacketListener implements PacketListener {
     @PacketHandler(type = PacketType.GROUP_INFO_UPDATE)
     public void onGroupInfoUpdate(Packet packet) {
         ServiceGroupInfoSnapshot snapshot = new Gson().fromJson(packet.getData()[0], ServiceGroupInfoSnapshot.class);
-        IServiceGroup serviceGroup = new ServiceGroup(ServiceType.valueOf(snapshot.getServiceType()), snapshot.getNode(), snapshot.getMinOnlineAmount(), snapshot.getMaxOnlineAmount(), snapshot.getMaxPlayers(), snapshot.getGroupName(), snapshot.getMaxRam(), snapshot.getPercentageToStartNewService(), ServiceVersion.valueOf(snapshot.getServiceVersion()), snapshot.getJavaParams(), snapshot.getStartArgs());
+        IServiceGroup serviceGroup = new ServiceGroup(ServiceType.valueOf(snapshot.getServiceType()), snapshot.getNode(), snapshot.getGroupName(), ServiceVersion.valueOf(snapshot.getServiceVersion()), snapshot.getJavaParams(), snapshot.getStartArgs(), snapshot.getMinOnlineAmount(), snapshot.getMaxOnlineAmount(), snapshot.getMaxPlayers(), snapshot.getMaxRam(), snapshot.getPercentageToStartNewService());
         Optional<IServiceGroup> optionalOldGroup = Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroup(snapshot.getGroupName());
         if (optionalOldGroup.isEmpty()) {
             Cloud.getModule().getCloudLogger().info("Service Group has been created -> " + serviceGroup.getGroupName());

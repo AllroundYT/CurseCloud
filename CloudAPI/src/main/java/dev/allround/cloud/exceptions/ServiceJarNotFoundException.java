@@ -5,8 +5,8 @@ import dev.allround.cloud.servicegroup.IServiceGroup;
 
 import java.nio.file.Path;
 
-public class ServiceJarNotFoundException extends Exception{
+public class ServiceJarNotFoundException extends Exception {
     public ServiceJarNotFoundException(IServiceGroup iServiceGroup) {
-        super("Could not find "+(iServiceGroup.getType() == ServiceType.PROXY ? "proxy" : "server")+".jar in "+ Path.of("templates",iServiceGroup.getGroupName()).toAbsolutePath());
+        super("Could not find " + (iServiceGroup.getType() == ServiceType.PROXY ? "proxy" : "server") + ".jar in " + Path.of("templates", iServiceGroup.getGroupName()).toAbsolutePath());
     }
 }

@@ -18,11 +18,11 @@ import java.util.UUID;
 public class CloudPlayer implements ICloudPlayer {
     private final UUID uuid;
     private final String name;
+    private final List<String> data;
     private boolean online;
     private String service;
     private String proxy;
     private boolean operator;
-    private final List<String> data;
 
     public CloudPlayer(UUID uuid, String name) {
         this.uuid = uuid;
@@ -37,7 +37,7 @@ public class CloudPlayer implements ICloudPlayer {
             return;
         }
         ProxiedPlayer player = ProxyServer.getInstance().getPlayer(getUuid());
-        player.sendMessage("§7[§bCloud§7] "+ String.valueOf(msg));
+        player.sendMessage("§7[§bCloud§7] " + String.valueOf(msg));
     }
 
     @Override

@@ -6,13 +6,13 @@ import dev.allround.cloud.network.Packet;
 import dev.allround.cloud.network.PacketType;
 import dev.allround.cloud.service.IService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public interface ICloudPlayer extends ICommandSender {
     String getService();
 
     String getProxy();
+
     boolean isOnline();
 
     boolean isOperator();
@@ -25,19 +25,19 @@ public interface ICloudPlayer extends ICommandSender {
 
     List<String> getData();
 
-    default Packet createPlayerInfoUpdatePacket(){
+    default Packet createPlayerInfoUpdatePacket() {
         return new Packet(
                 PacketType.PLAYER_INFO_UPDATE,
                 new Gson().toJson(
                         new CloudPlayerInfoSnapshot(
-                        getUuid(),
-                        getName(),
-                        getProxy(),
-                        getService(),
-                        isOperator(),
-                        isOnline(),
-                        getData().toArray(new String[0])
-                ))
+                                getUuid(),
+                                getName(),
+                                getProxy(),
+                                getService(),
+                                isOperator(),
+                                isOnline(),
+                                getData().toArray(new String[0])
+                        ))
         );
         /*List<String> data = new ArrayList<>(List.of(
                 getName(),

@@ -10,22 +10,18 @@ import dev.allround.cloud.service.IService;
 import dev.allround.cloud.service.IServiceManager;
 import dev.allround.cloud.service.ServiceType;
 import dev.allround.cloud.service.ServiceVersion;
-import dev.allround.cloud.util.Initializeable;
-import dev.allround.cloud.util.Startable;
-import dev.allround.cloud.util.Stopable;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public interface IServiceGroup {
-    default int getOnlineServiceAmount(){
+    default int getOnlineServiceAmount() {
         return getServices().stream().filter(service -> service.isOnline() || service.isStarting()).toList().size();
     }
 
-    default List<IService> getServices(){
+    default List<IService> getServices() {
         return Cloud.getModule().getComponent(IServiceManager.class)
                 .getServices()
                 .stream()
@@ -35,7 +31,7 @@ public interface IServiceGroup {
 
     String getJavaParams();
 
-    default List<IService> getServices(Predicate<IService> predicate){
+    default List<IService> getServices(Predicate<IService> predicate) {
         return Cloud.getModule().getComponent(IServiceManager.class)
                 .getServices()
                 .stream()
@@ -47,26 +43,25 @@ public interface IServiceGroup {
     default IService getServiceWithLowestPlayerAmount() {
         return getServices().stream().sorted(Comparator.comparingInt(service0 -> service0.getPlayers().size())).toList().get(0);
     }
+
     ServiceType getType();
 
     String getNode();
 
     void update();
 
-    default List<ICloudPlayer> getPlayers(){
+    default List<ICloudPlayer> getPlayers() {
         return Cloud.getModule().getComponent(IPlayerManager.class)
                 .getCloudPlayers()
                 .stream()
                 .filter(iCloudPlayer ->
                         Cloud.getModule().getComponent(IServiceManager.class)
-                        .getService(iCloudPlayer.getService())
-                        .get().getServiceGroup().equals(this.getGroupName()))
+                                .getService(iCloudPlayer.getService())
+                                .get().getServiceGroup().equals(this.getGroupName()))
                 .collect(Collectors.toList());
     }
 
     int getMinOnlineAmount();
-
-    void setMaxPlayers(int maxPlayers);
 
     void setMinOnlineAmount(int amount);
 
@@ -82,10 +77,13 @@ public interface IServiceGroup {
 
     int getMaxPlayers();
 
+    void setMaxPlayers(int maxPlayers);
+
     double getPercentageToStartNewService();
 
-    ServiceVersion getServiceVersion();
     void setPercentageToStartNewService(double amount);
+
+    ServiceVersion getServiceVersion();
 
     void cloneGroupInfo(IServiceGroup serviceGroup);
 

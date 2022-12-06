@@ -10,8 +10,8 @@ import java.util.UUID;
 @Getter
 public class CloudPlayerInfoSnapshot {
     private final UUID uuid;
-    private final String name,proxy,service;
-    private final boolean operator,online;
+    private final String name, proxy, service;
+    private final boolean operator, online;
     private final String[] data;
 
     @Override

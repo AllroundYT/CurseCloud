@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 
 public abstract class IInputManager extends BufferedReader implements Startable, Stopable {
 
+    private final boolean useJLine;
     private boolean isRunning;
 
     public IInputManager(boolean useJLine) {
@@ -19,8 +20,6 @@ public abstract class IInputManager extends BufferedReader implements Startable,
 
 
     }
-
-    private final boolean useJLine;
 
     @Override
     public void stop() {
@@ -31,23 +30,23 @@ public abstract class IInputManager extends BufferedReader implements Startable,
     public void start() {
         this.isRunning = true;
         Cloud.getModule().getCachedThreadPool().submit(() -> {
-            if (useJLine){
+            if (useJLine) {
 
                 try {
                     ConsoleReader consoleReader = new ConsoleReader();
                     consoleReader.setPrompt("-> ");
-                    while (isRunning){
+                    while (isRunning) {
                         System.out.println(consoleReader.accept());
                     }
                 } catch (IOException e) {
                     Cloud.getModule().getCloudLogger().error(e);
                 }
-            }else {
+            } else {
                 while (isRunning) {
                     try {
                         onInput(readLine());
                         //System.out.print("> ");
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         Cloud.getModule().getCloudLogger().error(e);
                     }
                 }

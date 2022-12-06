@@ -9,6 +9,7 @@ import java.time.Instant;
 
 public class RestartCommand implements ICommand {
     private Instant lastAttempt = Instant.now();
+
     @Override
     public boolean onExecute(ICommandSender sender, String command, String[] args) {
         if (Duration.between(lastAttempt, Instant.now()).toMillis() < 10000) {

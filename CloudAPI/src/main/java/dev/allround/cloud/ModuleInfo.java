@@ -8,16 +8,17 @@ public class ModuleInfo {
     private final UUID id;
     private final String type;
 
-    public ModuleInfo(String name, String version, UUID id,ModuleType moduleType) {
+    public ModuleInfo(String name, String version, UUID id, ModuleType moduleType) {
         this.name = name;
         this.version = version;
         this.id = id;
         this.type = moduleType.name();
     }
 
-    public ModuleType getType(){
+    public ModuleType getType() {
         return ModuleType.valueOf(this.type);
     }
+
     public UUID id() {
         return id;
     }

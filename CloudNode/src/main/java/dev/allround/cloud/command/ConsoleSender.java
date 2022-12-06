@@ -9,7 +9,7 @@ public class ConsoleSender implements ICommandSender {
 
     @Override
     public void sendMessage(Object msg) {
-        Cloud.getModule().getCloudLogger().info(msg.toString().replaceAll("§.",""));
+        Cloud.getModule().getCloudLogger().info(msg.toString().replaceAll("§.", ""));
     }
 
     @Override

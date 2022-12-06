@@ -1,7 +1,10 @@
 package dev.allround.cloud.network;
 
 import com.google.gson.Gson;
-import dev.allround.cloud.*;
+import dev.allround.cloud.Cloud;
+import dev.allround.cloud.ModuleInfo;
+import dev.allround.cloud.ModuleType;
+import dev.allround.cloud.ModuleWrapper;
 import dev.allround.cloud.player.CloudPlayer;
 import dev.allround.cloud.player.CloudPlayerInfoSnapshot;
 import dev.allround.cloud.player.IPlayerManager;
@@ -47,5 +50,6 @@ public class NetworkClient extends INetworkClient {
                 ServiceInfoSnapshot snapshot = new Gson().fromJson(data, ServiceInfoSnapshot.class);
                 Cloud.getModule().getComponent(IServiceManager.class).getServices().add(new Service(snapshot.getNode(), SocketAddress.inetSocketAddress(snapshot.getPort(), snapshot.getHost()), ServiceType.valueOf(snapshot.getServiceType()), ServiceVersion.valueOf(snapshot.getServiceVersion()), snapshot.getGroupName(), snapshot.getServiceID(), snapshot.getJavaParams(), snapshot.getMaxRam(), snapshot.getStartArgs(), new String[]{snapshot.getMotd1(), snapshot.getMotd2()}, snapshot.getStatus(), snapshot.getMaxPlayers(), null));
             }
-        });}
+        });
+    }
 }

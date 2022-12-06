@@ -50,18 +50,19 @@ public abstract class ICommandManager implements Initializeable {
         registerCommand(new HelpCommand(), "Help", "Help displays all commands.", "", "?");
         registerCommand(new InfoCommand(), "Information", "Displays information about the cloud.", "", "Info");
         registerCommand(new ListModulesCommand(), "ListSockets", "Displays a list with all connected sockets.", "cloud.command.listsockets", "lns");
-        registerCommand(new AddGroupCommand(),"AddGroup","Adds a new group","cloud.command.addgroup","agroup","creategroup");
-        registerCommand(new ListGroupsCommand(),"listgroups","","","lg");
-        registerCommand(new ListServicesCommand(),"listServices","","","ls");
-        registerCommand(new ServiceInfoCommand(),"serviceInfo","","","si","serinfo");
-        registerCommand(new GroupInfoCommand(),"groupinfo","","","gi","ginfo");
+        registerCommand(new AddGroupCommand(), "AddGroup", "Adds a new group", "cloud.command.addgroup", "agroup", "creategroup");
+        registerCommand(new ListGroupsCommand(), "listgroups", "", "", "lg");
+        registerCommand(new ListServicesCommand(), "listServices", "", "", "ls");
+        registerCommand(new ServiceInfoCommand(), "serviceInfo", "", "", "si", "serinfo");
+        registerCommand(new GroupInfoCommand(), "groupinfo", "", "", "gi", "ginfo");
     }
 
     private boolean hasPermission(ICommandSender sender, String perm) {
         return sender.hasPermission(perm.trim());
     }
 
-    public record RegisteredCommand(ICommand command, String name, String description, String permission, String... alias) {
+    public record RegisteredCommand(ICommand command, String name, String description, String permission,
+                                    String... alias) {
         @Override
         public String toString() {
             return "{" + "command=" + command + ", name=" + name + ", description=" + description + ", permission=" + permission + ", alias=" + Arrays.toString(alias) + '}';

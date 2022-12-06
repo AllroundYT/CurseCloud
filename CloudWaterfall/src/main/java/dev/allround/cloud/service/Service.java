@@ -3,18 +3,8 @@ package dev.allround.cloud.service;
 import dev.allround.cloud.Cloud;
 import dev.allround.cloud.network.INetworkClient;
 import dev.allround.cloud.network.PacketType;
-import dev.allround.cloud.servicegroup.IServiceGroup;
-import dev.allround.cloud.servicegroup.IServiceGroupManager;
-import dev.allround.cloud.util.FileUtils;
-import dev.allround.cloud.util.PortChecker;
 import io.vertx.core.net.SocketAddress;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
-
-import java.io.IOException;
-import java.net.InetAddress;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 @AllArgsConstructor
 public class Service implements IService {
@@ -52,7 +42,6 @@ public class Service implements IService {
     public boolean copyTemplate(boolean printWarnMsg) {
         return true;
     }
-
 
 
     @Override
@@ -131,7 +120,7 @@ public class Service implements IService {
 
     @Override
     public void start() {
-        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(PacketType.API_START_SERVICE,new String[]{getServiceID()});
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(PacketType.API_START_SERVICE, new String[]{getServiceID()});
     }
 
     @Override

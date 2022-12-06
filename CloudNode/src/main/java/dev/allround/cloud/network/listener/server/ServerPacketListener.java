@@ -16,10 +16,10 @@ import java.util.UUID;
 public class ServerPacketListener implements PacketListener {
 
     @PacketHandler(type = PacketType.API_STOP_CLOUD)
-    public void onAPIStopCloud(Packet packet){
+    public void onAPIStopCloud(Packet packet) {
         INetworkServer networkServer = Cloud.getModule().getComponent(INetworkServer.class);
         CloudSocket requestSender = networkServer.getCloudSocketBySocketAddress(packet.getSenderSocket().get()).get();
-        networkServer.sendPacket(new Packet(PacketType.UNDEFINED_API_RESPONSE,"SUCCESS"), requestSender.netSocket());
+        networkServer.sendPacket(new Packet(PacketType.UNDEFINED_API_RESPONSE, "SUCCESS"), requestSender.netSocket());
         System.exit(0);
     }
 
@@ -93,7 +93,7 @@ public class ServerPacketListener implements PacketListener {
         Cloud.getModule().getComponent(IPlayerManager.class).getCloudPlayers().forEach(iCloudPlayer -> {
             playerData.add(iCloudPlayer.createPlayerInfoUpdatePacket().getData()[0]);
         });
-        networkServer.sendPacket(new Packet(PacketType.RESPONSE_PLAYER_INFO,playerData.toArray(new String[0])).setRequestID(packet.getRequestID()), requestSender.netSocket());
+        networkServer.sendPacket(new Packet(PacketType.RESPONSE_PLAYER_INFO, playerData.toArray(new String[0])).setRequestID(packet.getRequestID()), requestSender.netSocket());
     }
 
     @PacketHandler(type = PacketType.API_KICK_PLAYER)

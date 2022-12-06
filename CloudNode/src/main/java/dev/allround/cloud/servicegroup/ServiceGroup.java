@@ -4,7 +4,10 @@ import dev.allround.cloud.Cloud;
 import dev.allround.cloud.exceptions.ServiceJarNotFoundException;
 import dev.allround.cloud.network.INetworkClient;
 import dev.allround.cloud.network.PacketType;
-import dev.allround.cloud.service.*;
+import dev.allround.cloud.service.IService;
+import dev.allround.cloud.service.Service;
+import dev.allround.cloud.service.ServiceType;
+import dev.allround.cloud.service.ServiceVersion;
 import dev.allround.cloud.util.NodeProperties;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,19 +19,38 @@ import java.util.Comparator;
 
 @Getter
 @AllArgsConstructor
-public class ServiceGroup implements IServiceGroup{
+public class ServiceGroup implements IServiceGroup {
 
     private final ServiceType type;
     private final String node;
-    private int minOnlineAmount;
-    private int maxOnlineAmount;
-    private int maxPlayers;
     private final String groupName;
-    private int maxRam;
-    private double percentageToStartNewService;
     private final ServiceVersion serviceVersion;
     private final String javaParams;
     private final String startArgs;
+    private int minOnlineAmount;
+    private int maxOnlineAmount;
+    private int maxPlayers;
+    private int maxRam;
+    private double percentageToStartNewService;
+
+    public ServiceGroup(ServiceType type, String node, String groupName, ServiceVersion serviceVersion) {
+        this.type = type;
+        this.node = node;
+        this.groupName = groupName;
+        this.serviceVersion = serviceVersion;
+        this.minOnlineAmount = 1;
+        this.maxOnlineAmount = 1;
+        this.maxRam = 1024;
+        this.maxPlayers = 20;
+        this.percentageToStartNewService = 0.75d;
+        this.javaParams = "-Dcloud.network.host=%HOST% -Dcloud.network.port=%PORT%"
+                .replace("%HOST%", Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerHost())
+                .replace("%PORT%", String.valueOf(Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerPort()))
+        ;
+        System.out.println("PORT:" + String.valueOf(Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerPort()));
+        this.startArgs = "nogui";
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createGroupInfoUpdatePacket());
+    }
 
     @Override
     public String getStartArgs() {
@@ -64,25 +86,6 @@ public class ServiceGroup implements IServiceGroup{
         Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createGroupInfoUpdatePacket());
     }
 
-    public ServiceGroup(ServiceType type, String node, String groupName, ServiceVersion serviceVersion) {
-        this.type = type;
-        this.node = node;
-        this.groupName = groupName;
-        this.serviceVersion = serviceVersion;
-        this.minOnlineAmount = 1;
-        this.maxOnlineAmount = 1;
-        this.maxRam = 1024;
-        this.maxPlayers = 20;
-        this.percentageToStartNewService = 0.75d;
-        this.javaParams = "-Dcloud.network.host=%HOST% -Dcloud.network.port=%PORT%"
-                .replace("%HOST%",Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerHost())
-                .replace("%PORT%",String.valueOf(Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerPort()))
-        ;
-        System.out.println("PORT:" + String.valueOf(Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerPort()));
-        this.startArgs = "nogui";
-        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createGroupInfoUpdatePacket());
-    }
-
     @Override
     public void cloneGroupInfo(IServiceGroup serviceGroup) {
         this.minOnlineAmount = serviceGroup.getMinOnlineAmount();
@@ -94,15 +97,15 @@ public class ServiceGroup implements IServiceGroup{
 
     @Override
     public void update() {
-        if (Cloud.getWrapper().isNotThisModule(getNode())){
-            Cloud.getModule().getComponent(INetworkClient.class).sendPacket(PacketType.API_UPDATE_SERVICE_GROUP,new String[]{getGroupName()});
+        if (Cloud.getWrapper().isNotThisModule(getNode())) {
+            Cloud.getModule().getComponent(INetworkClient.class).sendPacket(PacketType.API_UPDATE_SERVICE_GROUP, new String[]{getGroupName()});
             return;
         }
 
         while (getOnlineServiceAmount() > getMaxOnlineAmount()) {
             getServices(IService::isOnline).stream().sorted(Comparator.comparingInt(value -> value.getPlayers().size())).toList().get(0).setStatus("BLOCKED");
         }
-        while (getOnlineServiceAmount() < getMinOnlineAmount() && getOnlineServiceAmount() < getMaxOnlineAmount() ){
+        while (getOnlineServiceAmount() < getMinOnlineAmount() && getOnlineServiceAmount() < getMaxOnlineAmount()) {
             Service service = new Service(this);
             service.start();
         }
@@ -118,17 +121,17 @@ public class ServiceGroup implements IServiceGroup{
 
     @Override
     public boolean updateTemplate(boolean printWarnMsg) {
-        if (Cloud.getWrapper().isNotThisModule(getNode())){
+        if (Cloud.getWrapper().isNotThisModule(getNode())) {
             return false;
         }
         try {
             Path templatePath = Path.of("templates", getGroupName());
-            Path pluginsPath = Path.of(templatePath.toAbsolutePath().toString(),"plugins");
+            Path pluginsPath = Path.of(templatePath.toAbsolutePath().toString(), "plugins");
             Path serverJarPath;
-            if (getType() == ServiceType.PROXY){
-                serverJarPath = Path.of(templatePath.toAbsolutePath().toString(),"proxy.jar");
-            }else {
-                serverJarPath = Path.of(templatePath.toAbsolutePath().toString(),"server.jar");
+            if (getType() == ServiceType.PROXY) {
+                serverJarPath = Path.of(templatePath.toAbsolutePath().toString(), "proxy.jar");
+            } else {
+                serverJarPath = Path.of(templatePath.toAbsolutePath().toString(), "server.jar");
             }
 
             if (Files.notExists(templatePath)) Files.createDirectories(templatePath);
@@ -136,7 +139,7 @@ public class ServiceGroup implements IServiceGroup{
             if (Files.notExists(serverJarPath)) throw new ServiceJarNotFoundException(this);
 
             return true;
-        } catch (IOException e){
+        } catch (IOException e) {
             Cloud.getModule().getCloudLogger().error(e);
             return false;
         } catch (ServiceJarNotFoundException e) {

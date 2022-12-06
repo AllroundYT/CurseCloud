@@ -18,10 +18,12 @@ public interface IServiceGroupManager extends Startable, Stopable {
     List<IServiceGroup> getServiceGroups();
 
     void loadGroups();
+
     void saveGroups();
+
     void updateGroups(IServiceGroup... iServiceGroups);
 
-    default List<IServiceGroup> getServiceGroups(String node){
+    default List<IServiceGroup> getServiceGroups(String node) {
         return getServiceGroups().stream()
                 .filter(iServiceGroup -> iServiceGroup.getNode().equals(node))
                 .collect(Collectors.toList());
@@ -29,7 +31,7 @@ public interface IServiceGroupManager extends Startable, Stopable {
 
     void update(IServiceGroup iServiceGroup);
 
-    default ModuleInfo getNodeWithLowestGroupCount(){
+    default ModuleInfo getNodeWithLowestGroupCount() {
         return Cloud.getWrapper().getModuleInfos().stream()
                 .filter(moduleInfo -> moduleInfo.getType() == ModuleType.NODE)
                 .sorted(Comparator.comparingInt(node -> getServiceGroups().stream().filter(iServiceGroup -> iServiceGroup.getNode().equals(node.name())).toList().size()))
@@ -43,7 +45,7 @@ public interface IServiceGroupManager extends Startable, Stopable {
             return;
 
         getServiceGroups().add(serviceGroup);
-        if (Cloud.getWrapper().isThisModule(serviceGroup.getNode())){
+        if (Cloud.getWrapper().isThisModule(serviceGroup.getNode())) {
             Cloud.getModule().getComponent(INetworkClient.class).sendPacket(serviceGroup.createGroupInfoUpdatePacket());
         }
     }

@@ -16,22 +16,22 @@ public class NodeProperties extends Properties {
         FileUtils.getFile(path.toAbsolutePath());
     }
 
-    public void addDefault(String key,String value){
-        if (getProperty(key) == null) setProperty(key,value);
+    public void addDefault(String key, String value) {
+        if (getProperty(key) == null) setProperty(key, value);
     }
 
-    public synchronized NodeProperties load(){
+    public synchronized NodeProperties load() {
         try {
             super.load(Files.newInputStream(path));
-            addDefault("node.name", "Node-"+ UUID.randomUUID().toString().split("-")[0]);
+            addDefault("node.name", "Node-" + UUID.randomUUID().toString().split("-")[0]);
             addDefault("node.version", Cloud.getWrapper().getThisModule().version());
             addDefault("node.main", "true");
             addDefault("network.server.port", "1099");
             addDefault("network.server.host", "127.0.0.1");
             addDefault("log.debug", "false");
-            addDefault("server.minPort","40000");
-            addDefault("server.maxPort","50000");
-        }catch (Exception e){
+            addDefault("server.minPort", "40000");
+            addDefault("server.maxPort", "50000");
+        } catch (Exception e) {
             Cloud.getModule().getCloudLogger().error(e);
         }
         return this;
@@ -40,39 +40,40 @@ public class NodeProperties extends Properties {
     public synchronized void save() {
         try {
             super.store(Files.newOutputStream(path), "NodeProperties for AllroundCloud Node");
-        }catch (Exception e){
+        } catch (Exception e) {
             Cloud.getModule().getCloudLogger().error(e);
         }
     }
 
-    public int getMinServerPort(){
+    public int getMinServerPort() {
         return Integer.parseInt(getProperty("server.minPort"));
     }
 
-    public int getMaxServerPort(){
+    public int getMaxServerPort() {
         return Integer.parseInt(getProperty("server.maxPort"));
     }
 
-    public String getNodeName(){
+    public String getNodeName() {
         return getProperty("node.name");
     }
 
-    public String getNodeVersion(){
+    public String getNodeVersion() {
         return getProperty("node.version");
     }
 
-    public boolean isMainNode(){ //TODO: muss vor release auf Boolean.parseBoolean(getProperty("node.main")); geändert werden.
+    public boolean isMainNode() { //TODO: muss vor release auf Boolean.parseBoolean(getProperty("node.main")); geändert werden.
         return Boolean.getBoolean("cloud.node.main");
     }
 
-    public int getNetworkServerPort(){
+    public int getNetworkServerPort() {
         return Integer.parseInt(getProperty("network.server.port"));
     }
 
-    public String getNetworkServerHost(){
+    public String getNetworkServerHost() {
         return getProperty("network.server.host");
     }
-    public boolean isDebugModeEnabled(){
+
+    public boolean isDebugModeEnabled() {
         return Boolean.parseBoolean(getProperty("log.debug"));
     }
 }

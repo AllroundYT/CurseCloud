@@ -92,5 +92,6 @@ public class CloudProxyLogger implements Logger {
     }
 
     @Override
-    public void saveToFile() {}
+    public void saveToFile() {
+    }
 }

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 public class PortChecker {
-    public static int getFreePort(int lowest, int highest, int ideal){
+    public static int getFreePort(int lowest, int highest, int ideal) {
         if (isPortFree(ideal)) return ideal;
         int port = lowest;
         while (port <= highest && !isPortFree(port)) {

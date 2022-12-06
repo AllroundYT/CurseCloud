@@ -1,4 +1,5 @@
 package dev.allround.cloud;
+
 import dev.allround.cloud.log.Logger;
 import dev.allround.cloud.util.Initializeable;
 import dev.allround.cloud.util.Startable;

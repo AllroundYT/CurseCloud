@@ -33,16 +33,6 @@ public class Service implements IService {
     private int maxPlayers;
     private Process process;
 
-    @Override
-    public Process getProcess() {
-        return process;
-    }
-
-    @Override
-    public void setProcess(Process process) {
-        this.process = process;
-    }
-
     @SneakyThrows
     public Service(IServiceGroup iServiceGroup) {
         this.node = iServiceGroup.getNode();
@@ -57,6 +47,16 @@ public class Service implements IService {
         this.status = "CREATED";
         this.motd = new String[]{"§6Service by AllroundCloud", "§7by Allround | Julian"};
         this.startArgs = iServiceGroup.getStartArgs();
+    }
+
+    @Override
+    public Process getProcess() {
+        return process;
+    }
+
+    @Override
+    public void setProcess(Process process) {
+        this.process = process;
     }
 
     @Override
@@ -82,13 +82,12 @@ public class Service implements IService {
         try {
             FileUtils.copy(templatePath.toFile(), tempPath.toFile());
             System.out.println("Template Copied");
-            } catch (IOException e) {
+        } catch (IOException e) {
             Cloud.getModule().getCloudLogger().error(e);
             return false;
         }
         return true;
     }
-
 
 
     @Override
@@ -177,7 +176,7 @@ public class Service implements IService {
         copyTemplate(true);
 
         Cloud.getModule().getComponent(IServiceManager.class).queueStart(this);
-        if (!copyTemplate(false)){
+        if (!copyTemplate(false)) {
             Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createServiceInfoUpdatePacket());
         }
     }

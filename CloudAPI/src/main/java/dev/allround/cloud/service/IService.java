@@ -95,6 +95,7 @@ public interface IService extends Startable, Stopable { //TODO: Service muss neu
     }
 
     void cloneServiceInfo(IService service);
+
     String getServiceGroup();
 
     String getJavaParams();

@@ -32,7 +32,7 @@ public class PlayerManager implements IPlayerManager {
     }
 
     @Override
-    public void update(ICloudPlayer cloudPlayer){
+    public void update(ICloudPlayer cloudPlayer) {
         if (getCloudPlayer(cloudPlayer.getUuid()).isEmpty()) {
             this.cloudPlayers.add(cloudPlayer);
         } else {
@@ -42,6 +42,6 @@ public class PlayerManager implements IPlayerManager {
 
     @Override
     public void registerPlayer(UUID uuid, String name) {
-        registerPlayer(new CloudPlayer(uuid,name));
+        registerPlayer(new CloudPlayer(uuid, name));
     }
 }

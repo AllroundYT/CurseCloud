@@ -3,14 +3,15 @@ package dev.allround.cloud.network;
 import dev.allround.cloud.Cloud;
 import dev.allround.cloud.network.intern.SocketAuthPacketListener;
 import dev.allround.cloud.util.Initializeable;
-import dev.allround.cloud.util.Stopable;
 import io.vertx.core.Vertx;
 
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 public abstract class INetworkManager implements Initializeable {
     private final Set<PacketListener> clientListeners;

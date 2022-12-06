@@ -11,7 +11,7 @@ public class ListGroupsCommand implements ICommand {
         sender.sendMessage("");
         sender.sendMessage("-------------- Group List: --------------");
         Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroups().forEach(iServiceGroup ->
-                sender.sendMessage(" - "+iServiceGroup.getGroupName()+", "+iServiceGroup.getNode()+", "+iServiceGroup.getOnlineServiceAmount()));
+                sender.sendMessage(" - " + iServiceGroup.getGroupName() + ", " + iServiceGroup.getNode() + ", " + iServiceGroup.getOnlineServiceAmount()));
         sender.sendMessage("-----------------------------------------");
         sender.sendMessage("");
         return true;
