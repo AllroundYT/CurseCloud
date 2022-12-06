@@ -41,7 +41,7 @@ public interface IServiceGroupManager extends Startable, Stopable {
     }
 
     default void registerServiceGroup(IServiceGroup serviceGroup) {
-        if (getServiceGroups().stream().anyMatch(serviceGroup1 -> serviceGroup1.getGroupName().equalsIgnoreCase(serviceGroup.getGroupName())))
+        if (getServiceGroup(serviceGroup.getGroupName()).isPresent())
             return;
 
         getServiceGroups().add(serviceGroup);

@@ -25,7 +25,7 @@ public class NetworkClient extends INetworkClient {
     @Override
     public void onConnectionSuccess(NetSocket netSocket) {
         sendPacket(new Packet(PacketType.SOCKET_AUTH, ModuleType.NODE.name(), String.valueOf(netSocket.localAddress().port()), netSocket.localAddress().host()), packet -> {
-            sendPacket(new Packet(PacketType.SERVICE_CONNECT, new Gson().toJson(Cloud.getModule().getComponent(ModuleInfo.class))));
+            sendPacket(new Packet(PacketType.SERVICE_CONNECTED, new Gson().toJson(Cloud.getModule().getComponent(ModuleInfo.class))));
         });
         sendPacket(PacketType.REQUEST_NODE_INFO, new String[0], response -> {
             for (String data : response.getData()) {

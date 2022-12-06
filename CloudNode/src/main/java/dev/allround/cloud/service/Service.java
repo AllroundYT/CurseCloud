@@ -66,7 +66,9 @@ public class Service implements IService {
 
     @Override
     public boolean copyTemplate(boolean printWarnMsg) {
-        if (Cloud.getWrapper().isNotThisModule(getNode())) return false;
+        if (Cloud.getWrapper().isNotThisModule(getNode())) {
+            return false;
+        }
         if (Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroup(getServiceGroup()).isEmpty()) {
             return false;
         }
@@ -75,7 +77,10 @@ public class Service implements IService {
         Path templatePath = Path.of("templates", getServiceGroup());
         Path tempPath = Path.of("temp", getServiceID());
 
-        if (Files.notExists(templatePath) || !Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroup(getServiceGroup()).get().updateTemplate(printWarnMsg)) {
+        if (!Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroup(getServiceGroup()).get().updateTemplate(printWarnMsg)) return false;
+
+
+        if (Files.notExists(templatePath)) {
             return false;
         }
 
@@ -166,19 +171,17 @@ public class Service implements IService {
 
     @Override
     public void start() {
-        if (Cloud.getWrapper().isNotThisModule(getNode())) {
-            return;
-        }
         setStatus("READY");
         //Service wird registriert
         Cloud.getModule().getComponent(IServiceManager.class).registerServices(this);
 
-        copyTemplate(true);
-
-        Cloud.getModule().getComponent(IServiceManager.class).queueStart(this);
-        if (!copyTemplate(false)) {
-            Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createServiceInfoUpdatePacket());
+        if (Cloud.getWrapper().isNotThisModule(getNode())) {
+            Cloud.getModule().getComponent(INetworkClient.class).sendPacket(PacketType.API_START_SERVICE,new String[]{getServiceID()});
+            return;
         }
+
+        copyTemplate(true);
+        Cloud.getModule().getComponent(IServiceManager.class).queueStart(this);
     }
 
     @Override

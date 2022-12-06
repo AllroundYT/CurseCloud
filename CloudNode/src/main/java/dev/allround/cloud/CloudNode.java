@@ -87,9 +87,9 @@ public class CloudNode implements CloudModule {
             }
 
             if (getComponent(NodeProperties.class).isMainNode()) {
-                ServiceGroup serviceGroup = new ServiceGroup(ServiceType.SERVER, getModuleInfo().name(), "TestGroup", ServiceVersion.SPIGOT_1_18_2);
-                serviceGroup.setMinOnlineAmount(3);
-                serviceGroup.setMaxOnlineAmount(5);
+                ServiceGroup serviceGroup = new ServiceGroup(ServiceType.PROXY, getModuleInfo().name(), "TestProxy", ServiceVersion.WATERFALL_LATEST);
+                serviceGroup.setMinOnlineAmount(2);
+                serviceGroup.setMaxOnlineAmount(3);
                 getComponent(IServiceGroupManager.class).registerServiceGroup(serviceGroup);
                 getComponent(IServiceGroupManager.class).saveGroups();
             }
@@ -137,7 +137,7 @@ public class CloudNode implements CloudModule {
 
     public Packet createNodeInfoUpdatePacket() {
         return new Packet(
-                PacketType.NODE_INFO_UPDATE,
+                PacketType.NODE_INFO_UPDATED,
                 getModuleInfo().name(),
                 String.valueOf(getModuleInfo().id()),
                 getModuleInfo().version()

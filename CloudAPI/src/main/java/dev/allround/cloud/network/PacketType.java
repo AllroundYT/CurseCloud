@@ -26,19 +26,19 @@ public enum PacketType {
     /**
      * UUID
      */
-    PLAYER_CONNECT(0, 3, false),
+    PLAYER_CONNECTED(0, 3, false),
     /**
      * UUID
      */
-    PLAYER_DISCONNECT(1, 3, false),
+    PLAYER_DISCONNECTED(1, 3, false),
     /**
      * UUID,SERVICE
      */
-    PLAYER_SWITCH_SERVICE(2, 3, false),
+    PLAYER_SWITCHED_SERVICE(2, 3, false),
     /**
      * PLAYER INFO SNAPSHOT
      */
-    PLAYER_INFO_UPDATE(4, 3, false),
+    PLAYER_INFO_UPDATED(4, 3, false),
     /**
      * PLAYER UUID
      */
@@ -47,52 +47,50 @@ public enum PacketType {
     /**
      * SERVICE ID
      */
-    SERVICE_CONNECT(0, 5, false),
+    SERVICE_CONNECTED(0, 5, false),
     /**
      * SERVICE ID
      */
-    SERVICE_DISCONNECT(1, 5, false),
+    SERVICE_DISCONNECTED(1, 5, false),
     /**
      * SERVICE ID
      */
-    SERVICE_START(2, 5, false),
+    SERVICE_STARTED(2, 5, false),
     /**
      * SERVICE ID
      */
-    SERVICE_STOP(3, 5, false),
+    SERVICE_STOPPED(3, 5, false),
     /**
      * SERVICE INFO SNAPSHOT
      */
-    SERVICE_INFO_UPDATE(4, 5, false),
+    SERVICE_INFO_UPDATED(4, 5, false),
     //SERVICE GROUP
 
-    @Deprecated(forRemoval = true)
-    GROUP_CREATE(0, 6, false),
     /**
      * GROUP NAME
      */
-    GROUP_DELETE(1, 6, false),
+    GROUP_DELETED(0, 6, false),
     /**
      * GROUP INFO SNAPSHOT
      */
-    GROUP_INFO_UPDATE(2, 6, false),
+    GROUP_INFO_UPDATED(1, 6, false),
     //CLUSTER
     /**
      * NODE (MODULE INFO)
      */
-    NODE_CONNECT(0, 7, false),
+    NODE_CONNECTED(0, 7, false),
     /**
      * NODE (MODULE INFO)
      */
-    NODE_DISCONNECT(1, 7, false),
+    NODE_DISCONNECTED(1, 7, false),
     /**
      * NODE INFO (MODULE INFO)
      */
-    NODE_INFO_UPDATE(2, 7, false),
+    NODE_INFO_UPDATED(2, 7, false),
     /**
      *
      */
-    CLUSTER_STOP(3, 7, false),
+    CLUSTER_STOPPED(3, 7, false),
     //API
     /**
      *
@@ -125,7 +123,7 @@ public enum PacketType {
     /**
      *
      */
-    API_START_SERVICE(9, 8, true), // SERVICE GROUP (STRING)
+    API_START_SERVICE_OF_GROUP(9, 8, true), // SERVICE GROUP (STRING)
     /**
      *
      */
@@ -140,6 +138,8 @@ public enum PacketType {
     API_STOP_SERVICE_GROUP(12, 8, true), // SERVICE GROUP (STRING)
 
     API_STOP_CLOUD(13, 8, false),
+
+    API_START_SERVICE(14, 8, true),
     //API RESULT
     /**
      *
@@ -168,7 +168,7 @@ public enum PacketType {
     /**
      * Sent as response for an api request (API_STOP_PROXY)
      */
-    API_RESULT_START_SERVICES(8, 9, false),
+    API_RESULT_START_SERVICE(8, 9, false),
     /**
      * Sent as response for an api request (API_STOP_PROXY)
      */
@@ -206,15 +206,15 @@ public enum PacketType {
     /**
      * EXTENSION NAME
      */
-    EXTENSION_LOAD(0, 11, false),
+    EXTENSION_LOADED(0, 11, false),
     /**
      * EXTENSION NAME
      */
-    EXTENSION_START(1, 11, false),
+    EXTENSION_STARTED(1, 11, false),
     /**
      * EXTENSION NAME
      */
-    EXTENSION_STOP(2, 11, false);
+    EXTENSION_STOPPED(2, 11, false);
     private final int id;
     private final int section;
     private final boolean responsePossible;

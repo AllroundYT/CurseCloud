@@ -6,12 +6,15 @@ import dev.allround.cloud.ModuleType;
 import dev.allround.cloud.ModuleWrapper;
 import dev.allround.cloud.network.*;
 import dev.allround.cloud.player.IPlayerManager;
+import dev.allround.cloud.service.IService;
 import dev.allround.cloud.service.IServiceManager;
+import dev.allround.cloud.service.Service;
+import dev.allround.cloud.servicegroup.IServiceGroup;
 import dev.allround.cloud.servicegroup.IServiceGroupManager;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Optional;
 
 public class ServerPacketListener implements PacketListener {
 
@@ -19,7 +22,7 @@ public class ServerPacketListener implements PacketListener {
     public void onAPIStopCloud(Packet packet) {
         INetworkServer networkServer = Cloud.getModule().getComponent(INetworkServer.class);
         CloudSocket requestSender = networkServer.getCloudSocketBySocketAddress(packet.getSenderSocket().get()).get();
-        networkServer.sendPacket(new Packet(PacketType.UNDEFINED_API_RESPONSE, "SUCCESS"), requestSender.netSocket());
+        networkServer.sendPacket(new Packet(PacketType.UNDEFINED_API_RESPONSE, "SUCCESS").setRequestID(packet.getRequestID()), requestSender.netSocket());
         System.exit(0);
     }
 
@@ -30,6 +33,13 @@ public class ServerPacketListener implements PacketListener {
         INetworkServer networkServer = Cloud.getModule().getComponent(INetworkServer.class);
         CloudSocket requestSender = networkServer.getCloudSocketBySocketAddress(packet.getSenderSocket().get()).get();
         networkServer.sendPacket(new Packet(PacketType.RESPONSE_NODE_INFO, responseInfo.toArray(new String[0])).setRequestID(packet.getRequestID()), requestSender.netSocket());
+    }
+
+    @PacketHandler(type = PacketType.CUSTOM_REQUEST)
+    public void onCustomRequest(Packet packet){
+        Cloud.getModule().getComponent(INetworkServer.class).getCloudSockets(ModuleType.EXTENSION).forEach(cloudSocket -> {
+            Cloud.getModule().getComponent(INetworkServer.class).sendPacket(packet, cloudSocket.netSocket());
+        });
     }
 
     /**
@@ -98,11 +108,66 @@ public class ServerPacketListener implements PacketListener {
 
     @PacketHandler(type = PacketType.API_KICK_PLAYER)
     public void onPlayerKick(Packet packet) {
-        UUID playerUUID = UUID.fromString(packet.getData()[1]);
         Cloud.getModule().getComponent(INetworkServer.class).getCloudSockets(ModuleType.PROXY).forEach(cloudSocket -> {
-            Cloud.getModule().getComponent(INetworkServer.class).sendPacket(new Packet(PacketType.API_KICK_PLAYER, packet.getData()[1]), cloudSocket.netSocket());
+            Cloud.getModule().getComponent(INetworkServer.class).sendPacket(packet, cloudSocket.netSocket());
         });
     }
 
+    @PacketHandler(type = PacketType.API_SEND_MSG_TO_PLAYER)
+    public void onSendMessageToPlayer(Packet packet) {
+        Cloud.getModule().getComponent(INetworkServer.class).getCloudSockets(ModuleType.PROXY).forEach(cloudSocket -> {
+            Cloud.getModule().getComponent(INetworkServer.class).sendPacket(packet, cloudSocket.netSocket());
+        });
+    }
 
+    @PacketHandler(type = PacketType.API_SEND_PLAYER)
+    public void onSendPlayer(Packet packet) {
+        Cloud.getModule().getComponent(INetworkServer.class).getCloudSockets(ModuleType.PROXY).forEach(cloudSocket -> {
+            Cloud.getModule().getComponent(INetworkServer.class).sendPacket(packet, cloudSocket.netSocket());
+        });
+    }
+
+    @PacketHandler(type = PacketType.API_START_SERVICE)
+    public void onStartService(Packet packet) {
+        Cloud.getModule().getComponent(INetworkServer.class).getCloudSockets(ModuleType.NODE).forEach(cloudSocket -> {
+            Cloud.getModule().getComponent(INetworkServer.class).sendPacket(packet, cloudSocket.netSocket());
+        });
+    }
+
+    @PacketHandler(type = PacketType.API_START_SERVICE_OF_GROUP)
+    public void onStartServiceOfGroup(Packet packet) {
+        INetworkServer networkServer = Cloud.getModule().getComponent(INetworkServer.class);
+        CloudSocket requestSender = networkServer.getCloudSocketBySocketAddress(packet.getSenderSocket().get()).get();
+        String serviceGroupName = packet.getData()[0];
+        Optional<IServiceGroup> optionalServiceGroup = Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroup(serviceGroupName);
+        if (optionalServiceGroup.isEmpty()) {
+            networkServer.sendPacket(new Packet(PacketType.API_RESULT_START_SERVICE, "ERROR", "No ServiceGroup found with this name.").setRequestID(packet.getRequestID()), requestSender.netSocket());
+        } else {
+            IServiceGroup iServiceGroup = optionalServiceGroup.get();
+            IService iService = new Service(iServiceGroup);
+            iService.start();
+            networkServer.sendPacket(new Packet(PacketType.API_RESULT_START_SERVICE, "SUCCESS", "Service created.").setRequestID(packet.getRequestID()), requestSender.netSocket());
+        }
+    }
+
+    @PacketHandler(type = PacketType.API_STOP_SERVICE)
+    public void onStopService(Packet packet) {
+        Cloud.getModule().getComponent(INetworkServer.class).getCloudSockets(ModuleType.NODE).forEach(cloudSocket -> {
+            Cloud.getModule().getComponent(INetworkServer.class).sendPacket(packet, cloudSocket.netSocket());
+        });
+    }
+
+    @PacketHandler(type = PacketType.API_UPDATE_SERVICE_GROUP)
+    public void onUpdateServiceGroup(Packet packet) {
+        Cloud.getModule().getComponent(INetworkServer.class).getCloudSockets(ModuleType.NODE).forEach(cloudSocket -> {
+            Cloud.getModule().getComponent(INetworkServer.class).sendPacket(packet, cloudSocket.netSocket());
+        });
+    }
+
+    @PacketHandler(type = PacketType.API_STOP_SERVICE_GROUP)
+    public void onStopServiceGroup(Packet packet) {
+        Cloud.getModule().getComponent(INetworkServer.class).getCloudSockets(ModuleType.NODE).forEach(cloudSocket -> {
+            Cloud.getModule().getComponent(INetworkServer.class).sendPacket(packet, cloudSocket.netSocket());
+        });
+    }
 }

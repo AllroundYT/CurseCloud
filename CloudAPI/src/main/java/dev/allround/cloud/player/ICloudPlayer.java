@@ -27,7 +27,7 @@ public interface ICloudPlayer extends ICommandSender {
 
     default Packet createPlayerInfoUpdatePacket() {
         return new Packet(
-                PacketType.PLAYER_INFO_UPDATE,
+                PacketType.PLAYER_INFO_UPDATED,
                 new Gson().toJson(
                         new CloudPlayerInfoSnapshot(
                                 getUuid(),

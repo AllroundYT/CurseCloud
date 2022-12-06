@@ -89,7 +89,7 @@ public interface IServiceGroup {
 
     default Packet createGroupInfoUpdatePacket() {
         return new Packet(
-                PacketType.GROUP_INFO_UPDATE,
+                PacketType.GROUP_INFO_UPDATED,
                 new Gson().toJson(
                         new ServiceGroupInfoSnapshot(
                                 getJavaParams(),

@@ -108,7 +108,7 @@ public interface IService extends Startable, Stopable { //TODO: Service muss neu
 
     default Packet createServiceInfoUpdatePacket() {
         return new Packet(
-                PacketType.SERVICE_INFO_UPDATE,
+                PacketType.SERVICE_INFO_UPDATED,
                 new Gson().toJson(
                         new ServiceInfoSnapshot(
                                 getServiceID(),

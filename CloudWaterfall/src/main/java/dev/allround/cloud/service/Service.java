@@ -5,6 +5,9 @@ import dev.allround.cloud.network.INetworkClient;
 import dev.allround.cloud.network.PacketType;
 import io.vertx.core.net.SocketAddress;
 import lombok.AllArgsConstructor;
+import net.md_5.bungee.api.ProxyServer;
+
+import java.net.InetSocketAddress;
 
 @AllArgsConstructor
 public class Service implements IService {
@@ -120,7 +123,7 @@ public class Service implements IService {
 
     @Override
     public void start() {
-        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(PacketType.API_START_SERVICE, new String[]{getServiceID()});
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(PacketType.API_START_SERVICE_OF_GROUP, new String[]{getServiceID()});
     }
 
     @Override

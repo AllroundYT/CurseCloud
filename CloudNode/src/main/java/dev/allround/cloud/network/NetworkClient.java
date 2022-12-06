@@ -27,7 +27,7 @@ public class NetworkClient extends INetworkClient {
     public void onConnectionSuccess(NetSocket netSocket) {
         sendPacket(new Packet(PacketType.SOCKET_AUTH, ModuleType.NODE.name(), String.valueOf(netSocket.localAddress().port()), netSocket.localAddress().host()), packet -> {
             Cloud.getModule().getCloudLogger().debug("[Network - Client] Socket auth done!");
-            sendPacket(new Packet(PacketType.NODE_CONNECT, new Gson().toJson(Cloud.getModule().getModuleInfo())));
+            sendPacket(new Packet(PacketType.NODE_CONNECTED, new Gson().toJson(Cloud.getModule().getModuleInfo())));
         });
         if (Cloud.getModule().getComponent(NodeProperties.class).isMainNode())
             return; //die daten requests muss der main node nicht machen da er als erster startet und somit alle daten hat
@@ -40,13 +40,13 @@ public class NetworkClient extends INetworkClient {
         sendPacket(PacketType.REQUEST_PLAYER_INFO, new String[0], response -> {
             for (String data : response.getData()) {
                 CloudPlayerInfoSnapshot snapshot = new Gson().fromJson(data, CloudPlayerInfoSnapshot.class);
-                Cloud.getModule().getComponent(IPlayerManager.class).getCloudPlayers().add(new CloudPlayer(snapshot.getUuid(), snapshot.getName(), snapshot.isOnline(), snapshot.getService(), snapshot.getProxy(), snapshot.isOperator(), Arrays.asList(snapshot.getData())));
+                Cloud.getModule().getComponent(IPlayerManager.class).getCloudPlayers().add(new CloudPlayer(snapshot.getUuid(), snapshot.getName(), Arrays.asList(snapshot.getData()), snapshot.isOnline(), snapshot.getService(), snapshot.getProxy(), snapshot.isOperator()));
             }
         });
         sendPacket(PacketType.REQUEST_GROUP_INFO, new String[0], response -> {
             for (String data : response.getData()) {
                 ServiceGroupInfoSnapshot snapshot = new Gson().fromJson(data, ServiceGroupInfoSnapshot.class);
-                Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroups().add(new ServiceGroup(ServiceType.valueOf(snapshot.getServiceType()), snapshot.getNode(), snapshot.getMinOnlineAmount(), snapshot.getMaxOnlineAmount(), snapshot.getMaxPlayers(), snapshot.getGroupName(), snapshot.getMaxRam(), snapshot.getPercentageToStartNewService(), ServiceVersion.valueOf(snapshot.getServiceVersion()), snapshot.getJavaParams(), snapshot.getStartArgs()));
+                Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroups().add(new ServiceGroup(ServiceType.valueOf(snapshot.getServiceType()), snapshot.getNode(), snapshot.getGroupName(), ServiceVersion.valueOf(snapshot.getServiceVersion()), snapshot.getJavaParams(), snapshot.getStartArgs(), snapshot.getMinOnlineAmount(), snapshot.getMaxOnlineAmount(), snapshot.getMaxPlayers(), snapshot.getMaxRam(), snapshot.getPercentageToStartNewService()));
             }
         });
         sendPacket(PacketType.REQUEST_SERVICE_INFO, new String[0], response -> {
@@ -60,9 +60,9 @@ public class NetworkClient extends INetworkClient {
     @Override
     public void stop() {
         if (Cloud.getModule().getComponent(NodeProperties.class).isMainNode()) {
-            sendPacket(new Packet(PacketType.CLUSTER_STOP, new Gson().toJson(ModuleWrapper.getInstance().getThisModule())));
+            sendPacket(new Packet(PacketType.CLUSTER_STOPPED, new Gson().toJson(ModuleWrapper.getInstance().getThisModule())));
         } else {
-            sendPacket(new Packet(PacketType.NODE_DISCONNECT, new Gson().toJson(ModuleWrapper.getInstance().getThisModule())));
+            sendPacket(new Packet(PacketType.NODE_DISCONNECTED, new Gson().toJson(ModuleWrapper.getInstance().getThisModule())));
         }
         super.stop();
     }
