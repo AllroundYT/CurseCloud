@@ -58,7 +58,7 @@ public class ServiceGroupManager implements IServiceGroupManager {
 
                         ServiceVersion serviceVersion = ServiceVersion.valueOf(version);
 
-                        ServiceGroup serviceGroup = new ServiceGroup(serviceType, node, minOnlineAmount, maxOnlineAmount, maxPlayers, name, maxRam, percentageToStartNewService, serviceVersion, javaParams, startArgs);
+                        ServiceGroup serviceGroup = new ServiceGroup(serviceType, node, name, ServiceVersion.valueOf(version), javaParams, startArgs, minOnlineAmount, maxOnlineAmount, maxPlayers, maxRam, percentageToStartNewService);
                         this.registerServiceGroup(serviceGroup);
                     }
                 } catch (Exception ignored) {

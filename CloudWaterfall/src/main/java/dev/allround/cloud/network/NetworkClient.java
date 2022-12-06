@@ -36,13 +36,13 @@ public class NetworkClient extends INetworkClient {
         sendPacket(PacketType.REQUEST_PLAYER_INFO, new String[0], response -> {
             for (String data : response.getData()) {
                 CloudPlayerInfoSnapshot snapshot = new Gson().fromJson(data, CloudPlayerInfoSnapshot.class);
-                Cloud.getModule().getComponent(IPlayerManager.class).getCloudPlayers().add(new CloudPlayer(snapshot.getUuid(), snapshot.getName(), snapshot.isOnline(), snapshot.getService(), snapshot.getProxy(), snapshot.isOperator(), Arrays.asList(snapshot.getData())));
+                Cloud.getModule().getComponent(IPlayerManager.class).getCloudPlayers().add(new CloudPlayer(snapshot.getUuid(), snapshot.getName(), Arrays.asList(snapshot.getData()), snapshot.isOnline(), snapshot.getService(), snapshot.getProxy(), snapshot.isOperator()));
             }
         });
         sendPacket(PacketType.REQUEST_GROUP_INFO, new String[0], response -> {
             for (String data : response.getData()) {
                 ServiceGroupInfoSnapshot snapshot = new Gson().fromJson(data, ServiceGroupInfoSnapshot.class);
-                Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroups().add(new ServiceGroup(ServiceType.valueOf(snapshot.getServiceType()), snapshot.getNode(), snapshot.getMinOnlineAmount(), snapshot.getMaxOnlineAmount(), snapshot.getMaxPlayers(), snapshot.getGroupName(), snapshot.getMaxRam(), snapshot.getPercentageToStartNewService(), ServiceVersion.valueOf(snapshot.getServiceVersion()), snapshot.getJavaParams(), snapshot.getStartArgs()));
+                Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroups().add(new ServiceGroup(ServiceType.valueOf(snapshot.getServiceType()), snapshot.getNode(), snapshot.getGroupName(), ServiceVersion.valueOf(snapshot.getServiceVersion()), snapshot.getJavaParams(), snapshot.getStartArgs(), snapshot.getMinOnlineAmount(), snapshot.getMaxOnlineAmount(), snapshot.getMaxPlayers(), snapshot.getMaxRam(), snapshot.getPercentageToStartNewService()));
             }
         });
         sendPacket(PacketType.REQUEST_SERVICE_INFO, new String[0], response -> {
