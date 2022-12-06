@@ -13,7 +13,6 @@ import dev.allround.cloud.servicegroup.IServiceGroupManager;
 import dev.allround.cloud.servicegroup.ServiceGroup;
 import dev.allround.cloud.servicegroup.ServiceGroupManager;
 import dev.allround.cloud.util.*;
-import dev.allround.cloud.util.process.ProcessPool;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -53,6 +52,7 @@ public class CloudNode implements CloudModule {
         return components;
     }
 
+
     @Override
     public ModuleInfo getModuleInfo() {
         return new ModuleInfo(this.name, this.version, this.id, ModuleType.NODE);
@@ -70,6 +70,11 @@ public class CloudNode implements CloudModule {
         ((NodeLogger)getCloudLogger()).setDebugMode(getComponent(NodeProperties.class).isDebugModeEnabled());
 
         ProgressFuture progressFuture = new ProgressFuture(() -> {
+
+            getComponents().forEach(o -> {
+                if (o instanceof Startable startable) startable.start();
+            });
+
             getCloudLogger().info("");
             getCloudLogger().info("Cloudnode started successfully. (" + Duration.between(start, Instant.now()).toMillis() + "ms)");
             getCloudLogger().info("");
@@ -80,10 +85,6 @@ public class CloudNode implements CloudModule {
                 getCloudLogger().info("If it shouldn't be the main node please edit the node.properties file and restart the cloud via the restart command.");
                 getCloudLogger().info("");
             }
-
-            getComponents().forEach(o -> {
-                if (o instanceof Startable startable) startable.start();
-            });
 
             if (getComponent(NodeProperties.class).isMainNode()){
                 ServiceGroup serviceGroup = new ServiceGroup(ServiceType.SERVER,getModuleInfo().name(),"TestGroup", ServiceVersion.SPIGOT_1_18_2);
@@ -152,7 +153,6 @@ public class CloudNode implements CloudModule {
         registerComponent(Executors.newScheduledThreadPool(1)); //don't touch
 
         registerComponent(new NodeLogger());
-        registerComponent(new ProcessPool());
 
         try {
             FileUtils.setupDirectories(

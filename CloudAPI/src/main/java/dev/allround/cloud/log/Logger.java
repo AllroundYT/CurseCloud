@@ -30,8 +30,6 @@ public interface Logger {
 
     void raw(Object... objects);
 
-    void clearConsole();
-
     List<LogEntry> getLogEntries();
 
     void saveToFile();

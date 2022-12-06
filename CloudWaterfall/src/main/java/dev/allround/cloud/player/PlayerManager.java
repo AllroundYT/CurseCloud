@@ -1,5 +1,8 @@
 package dev.allround.cloud.player;
 
+import dev.allround.cloud.Cloud;
+import dev.allround.cloud.network.INetworkClient;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,11 +27,21 @@ public class PlayerManager implements IPlayerManager {
 
     @Override
     public void registerPlayer(ICloudPlayer iCloudPlayer) {
+        this.cloudPlayers.add(iCloudPlayer);
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(iCloudPlayer.createPlayerInfoUpdatePacket());
+    }
 
+    @Override
+    public void update(ICloudPlayer cloudPlayer){
+        if (getCloudPlayer(cloudPlayer.getUuid()).isEmpty()) {
+            this.cloudPlayers.add(cloudPlayer);
+        } else {
+            getCloudPlayer(cloudPlayer.getUuid()).get().clonePlayerInfo(cloudPlayer);
+        }
     }
 
     @Override
     public void registerPlayer(UUID uuid, String name) {
-
+        registerPlayer(new CloudPlayer(uuid,name));
     }
 }

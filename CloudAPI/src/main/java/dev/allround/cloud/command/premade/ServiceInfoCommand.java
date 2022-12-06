@@ -8,7 +8,7 @@ import dev.allround.cloud.service.IServiceManager;
 
 public class ServiceInfoCommand implements ICommand {
     @Override
-    public void onExecute(ICommandSender sender, String command, String[] args) {
+    public boolean onExecute(ICommandSender sender, String command, String[] args) {
         if (args.length == 1){
             String serviceID = args[0];
 
@@ -16,7 +16,7 @@ public class ServiceInfoCommand implements ICommand {
 
             if (serviceManager.getService(serviceID).isEmpty()){
                 sender.sendMessage("There is no service with this id.");
-                return;
+                return false;
             }
 
             IService iService = serviceManager.getService(serviceID).get();
@@ -42,5 +42,6 @@ public class ServiceInfoCommand implements ICommand {
         }else {
             sender.sendMessage("Please use \"serviceinfo <Service-ID>\"");
         }
+        return true;
     }
 }

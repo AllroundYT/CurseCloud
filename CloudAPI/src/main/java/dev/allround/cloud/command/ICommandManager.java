@@ -50,8 +50,6 @@ public abstract class ICommandManager implements Initializeable {
         registerCommand(new HelpCommand(), "Help", "Help displays all commands.", "", "?");
         registerCommand(new InfoCommand(), "Information", "Displays information about the cloud.", "", "Info");
         registerCommand(new ListModulesCommand(), "ListSockets", "Displays a list with all connected sockets.", "cloud.command.listsockets", "lns");
-        registerCommand(new StopCommand(), "StopNode", "Stops this node.", "cloud.command.stopnode", "stopn", "stop");
-        registerCommand(new RestartCommand(),"RestartNode","Restarts this node","cloud.command.restartnode","restartn","restart");
         registerCommand(new AddGroupCommand(),"AddGroup","Adds a new group","cloud.command.addgroup","agroup","creategroup");
         registerCommand(new ListGroupsCommand(),"listgroups","","","lg");
         registerCommand(new ListServicesCommand(),"listServices","","","ls");

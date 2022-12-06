@@ -1,0 +1,5 @@
+name: CloudProxy
+main: dev.allround.cloud.CloudProxyPlugin
+description: ProxyPlugin for CurseCloud
+version: 1.0-Snapshot
+author: Allround

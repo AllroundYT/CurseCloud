@@ -8,12 +8,13 @@ import dev.allround.cloud.servicegroup.IServiceGroupManager;
 
 public class ListServicesCommand implements ICommand {
     @Override
-    public void onExecute(ICommandSender sender, String command, String[] args) {
+    public boolean onExecute(ICommandSender sender, String command, String[] args) {
         sender.sendMessage("");
         sender.sendMessage("-------------- Service List: --------------");
         Cloud.getModule().getComponent(IServiceManager.class).getServices().forEach(iService ->
-                sender.sendMessage(" - "+iService.getServiceID()+", "+iService.getServiceGroup()+", "+iService.getNode()));
+                sender.sendMessage(" - "+iService.getServiceID()+", "+iService.getServiceGroup()+", "+iService.getStatus()+", "+iService.getNode()));
         sender.sendMessage("-------------------------------------------");
         sender.sendMessage("");
+        return true;
     }
 }

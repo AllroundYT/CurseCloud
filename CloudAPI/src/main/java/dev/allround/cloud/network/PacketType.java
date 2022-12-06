@@ -138,6 +138,8 @@ public enum PacketType {
      *
      */
     API_STOP_SERVICE_GROUP(12, 8, true), // SERVICE GROUP (STRING)
+
+    API_STOP_CLOUD(13,8,false),
     //API RESULT
     /**
      *
@@ -183,6 +185,8 @@ public enum PacketType {
      * Sent as response for an api request (API_STOP_PROXY)
      */
     API_RESULT_START_SERVICE_GROUP(12, 9, false),
+
+    UNDEFINED_API_RESPONSE(13,9,false),
     //Extension
     /**
      * Used by Cloud Extensions to send custom information

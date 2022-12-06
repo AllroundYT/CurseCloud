@@ -48,7 +48,7 @@ public class CloudPlayer implements ICloudPlayer {
 
     @Override
     public void sendMessage(Object msg) {
-        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(new Packet(PacketType.API_SEND_MSG_TO_PLAYER, getUuid().toString(), String.valueOf(msg)));
+        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(new Packet(PacketType.API_SEND_MSG_TO_PLAYER, getUuid().toString(),String.valueOf(msg)));
     }
 
     @Override
@@ -88,6 +88,16 @@ public class CloudPlayer implements ICloudPlayer {
     public CloudPlayer setProxy(String proxy) {
         this.proxy = proxy;
         return this;
+    }
+
+    @Override
+    public void clonePlayerInfo(ICloudPlayer cloudPlayer){
+        this.online = cloudPlayer.isOnline();
+        this.operator = cloudPlayer.isOperator();
+        this.service = cloudPlayer.getService();
+        this.proxy = cloudPlayer.getProxy();
+        this.data.clear();
+        this.data.addAll(cloudPlayer.getData());
     }
 
     @Override

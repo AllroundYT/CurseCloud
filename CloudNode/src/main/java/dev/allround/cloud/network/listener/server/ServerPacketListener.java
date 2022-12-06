@@ -15,6 +15,14 @@ import java.util.UUID;
 
 public class ServerPacketListener implements PacketListener {
 
+    @PacketHandler(type = PacketType.API_STOP_CLOUD)
+    public void onAPIStopCloud(Packet packet){
+        INetworkServer networkServer = Cloud.getModule().getComponent(INetworkServer.class);
+        CloudSocket requestSender = networkServer.getCloudSocketBySocketAddress(packet.getSenderSocket().get()).get();
+        networkServer.sendPacket(new Packet(PacketType.UNDEFINED_API_RESPONSE,"SUCCESS"), requestSender.netSocket());
+        System.exit(0);
+    }
+
     @PacketHandler(type = PacketType.REQUEST_NODE_INFO)
     public void onRequestNodeInfo(Packet packet) {
         ArrayList<String> responseInfo = new ArrayList<>();

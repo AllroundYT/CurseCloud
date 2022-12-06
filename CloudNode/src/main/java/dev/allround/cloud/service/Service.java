@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.UUID;
 
 @AllArgsConstructor
 public class Service implements IService {
@@ -44,36 +43,6 @@ public class Service implements IService {
         this.process = process;
     }
 
-    public Service(String node, SocketAddress socketAddress, ServiceType type, ServiceVersion serviceVersion, String serviceGroup, String serviceID, String javaParams, int maxRam, String startArgs) {
-        this.node = node;
-        this.socketAddress = socketAddress;
-        this.type = type;
-        this.serviceVersion = serviceVersion;
-        this.serviceGroup = serviceGroup;
-        this.serviceID = serviceID;
-        this.javaParams = javaParams;
-        this.maxRam = maxRam;
-        this.startArgs = startArgs;
-        this.maxPlayers = 20;
-        this.status = "CREATED";
-        this.motd = new String[]{"§6Service by AllroundCloud", "§7by Allround | Julian"};
-    }
-
-    public Service(String node, String[] motd, String host, int port, ServiceType type, ServiceVersion serviceVersion, int maxRam, String serviceGroup, String serviceID, int maxPlayers, String javaParams, String startArgs) {
-        this.node = node;
-        this.motd = motd;
-        this.startArgs = startArgs;
-        this.socketAddress = SocketAddress.inetSocketAddress(port, host);
-        this.type = type;
-        this.serviceVersion = serviceVersion;
-        this.status = "CREATED";
-        this.maxRam = maxRam;
-        this.serviceGroup = serviceGroup;
-        this.serviceID = serviceID;
-        this.maxPlayers = maxPlayers;
-        this.javaParams = javaParams;
-    }
-
     @SneakyThrows
     public Service(IServiceGroup iServiceGroup) {
         this.node = iServiceGroup.getNode();
@@ -81,7 +50,7 @@ public class Service implements IService {
         this.type = iServiceGroup.getType();
         this.serviceVersion = iServiceGroup.getServiceVersion();
         this.serviceGroup = iServiceGroup.getGroupName();
-        this.serviceID = getServiceGroup() + "-" + UUID.randomUUID().toString().split("-")[0];
+        this.serviceID = getServiceGroup() + "-" + (Cloud.getModule().getComponent(IServiceGroupManager.class).getServiceGroup(getServiceGroup()).get().getServices().size() + 1);
         this.javaParams = iServiceGroup.getJavaParams();
         this.maxRam = iServiceGroup.getMaxRam();
         this.maxPlayers = iServiceGroup.getMaxPlayers();
@@ -205,12 +174,12 @@ public class Service implements IService {
         //Service wird registriert
         Cloud.getModule().getComponent(IServiceManager.class).registerServices(this);
 
-        if (!copyTemplate(true)){
-            return;
-        }
+        copyTemplate(true);
 
         Cloud.getModule().getComponent(IServiceManager.class).queueStart(this);
-        Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createServiceInfoUpdatePacket());
+        if (!copyTemplate(false)){
+            Cloud.getModule().getComponent(INetworkClient.class).sendPacket(createServiceInfoUpdatePacket());
+        }
     }
 
     @Override

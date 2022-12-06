@@ -8,7 +8,7 @@ import dev.allround.cloud.servicegroup.IServiceGroupManager;
 
 public class GroupInfoCommand implements ICommand {
     @Override
-    public void onExecute(ICommandSender sender, String command, String[] args) {
+    public boolean onExecute(ICommandSender sender, String command, String[] args) {
         if (args.length == 1){
             String groupName = args[0];
 
@@ -16,7 +16,7 @@ public class GroupInfoCommand implements ICommand {
 
             if (groupManager.getServiceGroup(groupName).isEmpty()){
                 sender.sendMessage("There is no service group with this name.");
-                return;
+                return false;
             }
 
             IServiceGroup iServiceGroup = groupManager.getServiceGroup(groupName).get();
@@ -45,5 +45,6 @@ public class GroupInfoCommand implements ICommand {
         }else {
             sender.sendMessage("Please use \"groupinfo <Group>\"");
         }
+        return true;
     }
 }

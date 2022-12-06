@@ -1,9 +1,14 @@
 package dev.allround.cloud;
 
+import dev.allround.cloud.command.CommandManager;
+import dev.allround.cloud.log.CloudProxyLogger;
 import dev.allround.cloud.network.INetworkClient;
 import dev.allround.cloud.network.INetworkManager;
 import dev.allround.cloud.network.NetworkClient;
 import dev.allround.cloud.network.NetworkManager;
+import dev.allround.cloud.player.PlayerManager;
+import dev.allround.cloud.service.ServiceManager;
+import dev.allround.cloud.servicegroup.ServiceGroupManager;
 import dev.allround.cloud.util.Startable;
 import dev.allround.cloud.util.Stopable;
 
@@ -15,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
-public class ProxyMain implements CloudModule {
+public class ProxyMain  implements CloudModule {
     private final String name;
     private final String version;
     private final UUID id;
@@ -43,11 +48,18 @@ public class ProxyMain implements CloudModule {
         Cloud.setModule(this); //don't touch
         getComponents().clear(); //don't touch
 
+        registerComponent(new CloudProxyLogger());
+        registerComponent(new ProxyProperties(System.getProperty("cloud.service.id"),System.getProperty("cloud.service.group"),Integer.getInteger("cloud.network.port"),System.getProperty("cloud.network.host")));
+        registerComponent(new ModuleInfo(System.getProperty("cloud.service.id"),Cloud.VERSION,UUID.randomUUID(),ModuleType.PROXY));
         registerComponent(Executors.newCachedThreadPool()); //don't touch
         registerComponent(Executors.newScheduledThreadPool(1)); //don't touch
 
         registerComponent(new NetworkManager());
         registerComponent(new NetworkClient(getComponent(INetworkManager.class)));
+        registerComponent(new PlayerManager());
+        registerComponent(new ServiceManager());
+        registerComponent(new ServiceGroupManager());
+        registerComponent(new CommandManager());
     }
 
     @Override
@@ -59,7 +71,8 @@ public class ProxyMain implements CloudModule {
             if (o instanceof Startable startable) startable.start();
         });
 
-        getComponent(INetworkClient.class).startClient(new InetSocketAddress("127.0.0.1", 1099));
+        ProxyProperties proxyProperties = getComponent(ProxyProperties.class);
+        getComponent(INetworkClient.class).startClient(new InetSocketAddress(proxyProperties.networkServerHost(), proxyProperties.networkServerPort()));
 
         getCloudLogger().info("CloudProxyPlugin started successfully. (" + Duration.between(start, Instant.now()).toMillis() + "ms)");
     }

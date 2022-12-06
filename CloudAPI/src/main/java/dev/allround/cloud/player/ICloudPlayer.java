@@ -17,6 +17,8 @@ public interface ICloudPlayer extends ICommandSender {
 
     boolean isOperator();
 
+    void clonePlayerInfo(ICloudPlayer cloudPlayer);
+
     void kick(String reason);
 
     void send(IService iService);

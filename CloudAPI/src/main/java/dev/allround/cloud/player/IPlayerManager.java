@@ -11,5 +11,7 @@ public interface IPlayerManager {
 
     void registerPlayer(ICloudPlayer iCloudPlayer);
 
+    void update(ICloudPlayer cloudPlayer);
+
     void registerPlayer(UUID uuid, String name);
 }

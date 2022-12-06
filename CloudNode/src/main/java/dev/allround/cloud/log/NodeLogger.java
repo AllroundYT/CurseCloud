@@ -81,14 +81,6 @@ public class NodeLogger implements Logger, Stopable {
         log(Level.DEBUG, debugMode, objects);
     }
 
-    @Override
-    public void clearConsole() {
-        try {
-            Runtime.getRuntime().exec(new String[]{"cmd.exe", "/c", "cls"});
-        } catch (IOException e) {
-            error(e);
-        }
-    }
 
     private void log(Level level, boolean print, Object... objects) {
         for (Object o : objects) {

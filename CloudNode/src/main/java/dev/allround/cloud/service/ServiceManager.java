@@ -37,7 +37,9 @@ public class ServiceManager implements IServiceManager{
 
     @Override
     public void unregisterServices(IService... iServices) {
-        List.of(iServices).forEach(this.services::remove);
+        synchronized (this.services){
+            List.of(iServices).forEach(this.services::remove);
+        }
     }
 
     @Override
@@ -65,20 +67,22 @@ public class ServiceManager implements IServiceManager{
 
     @Override
     public void queueStart(IService iService){ //INFO: nur noch auf linux nutzt bar
-        //startQueue.add(iService);
+        startQueue.add(iService);
         Cloud.getModule().getScheduledExecutorService().scheduleAtFixedRate(() -> {
             startQueue.forEach(service -> {
                 if (service.copyTemplate(false)){
-                    ProcessBuilder processBuilder = new ProcessBuilder().directory(Path.of("temp", service.getServiceID()).toFile()).command("/bin/sh", "-c", "screen -s "+iService.getServiceID()+"  /bin/sh -c  java -Xmx" + service.getMaxRam() + "M -Xms" + service.getMaxRam() + "M -Dcloud.network.host=" + Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerHost() + " -Dcloud.network.port=" + Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerPort() + " " + service.getJavaParams() + " -jar " + (service.getType() == ServiceType.PROXY ? "proxy.jar" : "server.jar") + " "+service.getStartArgs());
-                    try {
+                    //ProcessBuilder processBuilder = new ProcessBuilder().directory(Path.of("temp", service.getServiceID()).toFile()).command("/bin/sh", "-c", "screen -s "+iService.getServiceID()+"  /bin/sh -c  java -Xmx" + service.getMaxRam() + "M -Xms" + service.getMaxRam() + "M -Dcloud.network.host=" + Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerHost() + " -Dcloud.network.port=" + Cloud.getModule().getComponent(NodeProperties.class).getNetworkServerPort() + " " + service.getJavaParams() + " -jar " + (service.getType() == ServiceType.PROXY ? "proxy.jar" : "server.jar") + " "+service.getStartArgs());
+                    //try {
                         Cloud.getModule().getCloudLogger().info("Try starting "+iService.getServiceID()+":"+iService.getNode()+"...");
-                        service.setProcess(processBuilder.start());
+                        //service.setProcess(processBuilder.start());
                         Cloud.getModule().getCloudLogger().info("Service started in screen \""+iService.getServiceID()+"\"");
                         iService.setStatus("PROCESS_STARTED");
                         Cloud.getModule().getComponent(INetworkClient.class).sendPacket(iService.createServiceInfoUpdatePacket());
-                    } catch (IOException e) {
+                    /*} catch (IOException e) {
                         Cloud.getModule().getCloudLogger().error(e);
                     }
+
+                     */
                     startQueue.remove(service);
                 }
             });
@@ -88,6 +92,8 @@ public class ServiceManager implements IServiceManager{
     @Override
     public void stop() {
         if (!Cloud.getModule().getComponent(NodeProperties.class).isMainNode()) return;
-        getServices().forEach(Stopable::stop);
+        synchronized (getServices()){
+            getServices().forEach(Stopable::stop);
+        }
     }
 }
